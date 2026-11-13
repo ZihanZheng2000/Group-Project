@@ -28,8 +28,11 @@ Total & 50 & 100\% \\
 \subsection{Review records}
 The records are kept in their original numbered order so they can be checked against the main text and the Excel file.
 
+{
 \small
-\begin{longtable}{@{}p{0.3in}>{\raggedright\arraybackslash}p{1.65in}>{\raggedright\arraybackslash}p{3.3in}>{\raggedright\arraybackslash}p{1.1in}@{}}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.36in}>{\raggedright\arraybackslash}p{1.12in}>{\raggedright\arraybackslash}p{\dimexpr\linewidth-0.36in-1.12in-1.28in-6\tabcolsep\relax}>{\raggedright\arraybackslash}p{1.28in}@{}}
 \caption{Summary of the 50 reviews}\label{tab:reviews}\\
 \toprule No. & User & Review summary & Category \\ \midrule
 \endfirsthead
@@ -87,4 +90,4 @@ The records are kept in their original numbered order so they can be checked aga
 49 & Valerie Salsgiver & Likes splitting costs, but receiving and withdrawing funds takes too long. & Receiving and transferring money \\
 50 & Ronnie Cross & Does not know how to create a group without others' contact details. & Joining a group \\
 \end{longtable}
-\normalsize
+}
