@@ -10,13 +10,25 @@
 
 \section{Introduction} - Zihan
 
-Managing shared expenses is a common task among roommates, friends, and people traveling or dining together. Dividing a bill is only part of this task: participants also need to understand what they owe, check whether the amount is correct, make a payment, and know whether the balance has actually been settled. Unclear expense details or payment records may create confusion even when the original bill was split correctly.
+Managing shared expenses is a common task among friends, roommates, and people traveling together. After a group activity, people need to know how much they owe, check whether the amounts are correct, make payments, and confirm that everything has been settled. This process can become difficult when bills include taxes and tips, several people add or change expenses, or payments are made outside the application.
 
-Our project focuses on the \textit{settling-up process for shared bills}, using Splitwise as an existing interface to explore this task. In particular, we examine how people review and verify balances before payment, identify and complete settlement actions, and confirm or reconcile payment status afterward. Our objective is not to redesign the entire application, but to understand users' needs within this specific workflow.
+Our project focuses on the \textit{settling-up process for shared expenses}, using Splitwise as an example. Splitwise helps users record expenses, split bills, and track balances between group members. However, users may still have trouble understanding how their balances are calculated, finding the correct payment steps, and knowing whether a payment has been completed.
+
+We focus on three main parts of this task: \textit{checking expenses before payment, making and recording payments, and confirming payments afterward}. During our initial exploration of Splitwise, we noticed several possible problems with expense details, balance updates, payment steps, and payment confirmation. These problems made us interested in learning more about how people manage shared expenses and what difficulties they face during settlement.
+
+Our goal is to improve the user experience of this specific task, instead of redesigning the entire application. We will use a survey, heuristic evaluation, and product review analysis to better understand user needs. Based on the findings, we will explore possible designs that make the settling-up process easier to understand and more reliable.
 
 \section{Initial Pilot Exploration} - Zihan
 
-We conducted a preliminary exploration of the regular group workflow with five members, using U.S. and Canadian free versions. We observed potential difficulties with checking expense breakdowns, noticing updates or edits to group expenses, discovering how to continue from the Settle Up screen, and distinguishing manually recorded payments from independently confirmed receipt. These observations provide questions for further study; they are not yet validated user needs.
+Our team of five members explored Splitwise using regular groups and the free versions available in the United States and Canada. We reviewed the process of checking shared expenses, making payments, and confirming balances. During this exploration, we noticed several possible usability problems.
+
+\textbf{First, checking expense details was not always easy.} Taxes and tips were not shown separately in the expense details we tested. For example, when a \$100 bill included a \$20 tip, other members could see their share of the \$120 total, but could not easily tell how much came from the original bill or the tip. We also noticed that newly added expenses sometimes did not appear until users manually refreshed the group page. In addition, users could find information about changed expenses in the Activity page, but these changes were not clearly shown in the group expense details.
+
+\textbf{Second, some payment steps were not clear.} Although the Settle Up button was easy to find, the next page did not clearly show what users should do. Users needed to click a group member's name to continue, but the name looked more like regular text than a button. We also found that payments made with cash or other payment applications had to be recorded manually in Splitwise. This could make it harder to keep payment records correct.
+
+\textbf{Third, payment confirmation was limited.} We found that users could record a payment and change the balance without the other person confirming that the money had been received. As a result, Splitwise could show that a balance was settled even when the actual payment had not been checked. However, asking users to confirm every payment might also make the process more complicated.
+
+These observations helped us identify possible problems in the settling-up process. We want to learn how users check their balances, understand changes to expenses, complete payments, and confirm that payments are finished. Since this was only an initial exploration by our team members, we cannot assume that all users face the same problems. We will use our needfinding activities to better understand these issues before deciding which improvements to develop.
 
 \section{Needfinding Plan}
 \subsection{What are we studying} - Xing Wu(Revised by June)
