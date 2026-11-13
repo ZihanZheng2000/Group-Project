@@ -1,33 +1,111 @@
 \documentclass[letterpaper]{jdf}
 \usepackage{graphicx,booktabs,array,hyperref}
-
+\usepackage{longtable}
+\usepackage{float}
 \author{Human Error}
 \title{Group Project: Splitwise Settling Up --- Check-in 1}
 
 \begin{document}
 \maketitle
 
-\section{Introduction}
+\section{Introduction} - Zihan
+
 Managing shared expenses is a common task among roommates, friends, and people traveling or dining together. Dividing a bill is only part of this task: participants also need to understand what they owe, check whether the amount is correct, make a payment, and know whether the balance has actually been settled. Unclear expense details or payment records may create confusion even when the original bill was split correctly.
 
 Our project focuses on the \textit{settling-up process for shared bills}, using Splitwise as an existing interface to explore this task. In particular, we examine how people review and verify balances before payment, identify and complete settlement actions, and confirm or reconcile payment status afterward. Our objective is not to redesign the entire application, but to understand users' needs within this specific workflow.
 
-\section{Initial Pilot Exploration}
+\section{Initial Pilot Exploration} - Zihan
+
 We conducted a preliminary exploration of the regular group workflow with five members, using U.S. and Canadian free versions. We observed potential difficulties with checking expense breakdowns, noticing updates or edits to group expenses, discovering how to continue from the Settle Up screen, and distinguishing manually recorded payments from independently confirmed receipt. These observations provide questions for further study; they are not yet validated user needs.
 
 \section{Needfinding Plan}
-To investigate the task from complementary perspectives, we plan three separate needfinding activities.
+\subsection{What are we studying} - Xing Wu(Revised by June)
 
-\subsection{Survey}
-We will ask users about their recent experiences with shared bills, how they verify amounts, which payment methods they use, and how they decide that a balance has been settled. Questions will avoid suggesting a particular design solution.
+For needfinding, we focus on how friends settle shared expenses after a group activity. To investigate the task from complementary perspectives, we plan three separate needfinding activities: A survey to understand users' experiences across different expense-sharing methods. A heuristic evaluation to identify usability issues in Splitwise. And a product review analysis to examine existing user feedback on shared expenses and payment confirmation.
 
-\subsection{Heuristic Evaluation of an Existing Interface}
-We will evaluate Splitwise's settling-up workflow using established usability principles, including visibility of system status, discoverability, and error prevention. We will document specific interface behaviors and the situations in which problems occur.
+\subsection{Survey} - Xing Wu(Revised by June)
 
-\subsection{Analysis of Product Reviews}
-We will analyze publicly available product reviews related to shared expenses, settling up, synchronization, and payment confirmation. These reviews may reveal additional concerns, but their self-selected nature will limit generalization.
+\begin{enumerate}[label=\arabic*)]
+
+\item \textbf{Recruitment and target size.}
+    
+We aim for about 20 valid responses from classmates and personal contacts who have shared expenses within the past year, using either expense-sharing apps or other methods.  Question 1 screens eligibility. We will report the numbers received, screened out, and retained.
+
+\item \textbf{What participants will do.}
+
+Participants will answer 13 choice questions (Q1–Q13) and two optional open-ended questions (Q14–Q15), drawing on shared-expense experiences from the past year.  Q1 screens eligibility, and Q2 asks what tools or methods groups used. The five stages then cover missing or changed expenses (Q3), how amounts were worked out and what was hard to understand (Q4-Q5), checks and questions before payment (Q6-Q7), payment or offsets and how these were communicated or recorded (Q8-Q9); and evidence of completion or mismatches (Q10-Q11). Q12 asks what actually happened during settlement, While Q13 identifies steps involving extra effort or uncertainty. Q14 asks for one difficult moment, actions, outcome, and possible help, Q15 asks what difficulties or needs the choices missed. Before launch, two or three participants will pilot the survey to assess question clarity and completion time.
+
+\item \textbf{Recording and analysis.}
+
+We will not ask for names, account details, or exact amounts. Choice responses will be summarized using counts and percentages, while written responses will be coded by settlement stage, difficulty, action, and outcome.
+
+\item \textbf{Possible biases}
+
+Classmates and personal contacts form a convenience sample. Recalling one or more experiences across a year may favor memorable problems and blur details. We hear only one person's account and cannot verify whether another friend received the money. The No problem and Cannot remember options help people avoid guessing, while optional example adds context. Some responses may also fall outside our narrower design situation.
+
+
+\end{enumerate}
+
+\subsection{Heuristic Evaluation of an Existing Interface} - Jiayi
+
+We will conduct a heuristic evaluation of Splitwise, focusing on reviewing shared expenses, settling balances, and recording payments. The evaluation will apply Nielsen's usability heuristics, including visibility of system status, consistency and standards, user control and freedom, error prevention, and recognition rather than recall. We will document the usability issues we encounter throughout the tasks and include detailed descriptions and relevant heuristics.
+
+One potential bias is confirmation bias because evaluators may focus on issues that are in line with their expectations. To reduce this bias, we will evaluate the entire task flow using the selected heuristics.
+
+\subsection{Analysis of Product Reviews} - Zilin(Revised by June)
+
+We will analyze 50 public Splitwise reviews from the App Store, Google Play, and Trustpilot, focusing on shared experiences, settling up, synchronization, and payment confirmation. For each review, we will note the source, available date, main feedback,and possible user need. We will group similar comments and keep pricing and advertising feedback separate from the task findings.
+
+We will look at positive experiences as well as complaints. These reviews are self-selected and may overrepresent users with strong opinions. Some also describe older versions of the app. We will compare the comments with our pilot observations and survey findings to identify recurring concerns.  The review records and categories will be included in the appendix.
+
+
 
 \section{Needfinding Results}
 % Add findings after completing the needfinding activities.
+\subsection{Survey} - Xing Wu
+
+
+
+\subsection{Heuristic Evaluation Results} - Jiayi(Revised by June)
+
+We evaluated Splitwise by reviewing shared expenses, settling balances, and recording payments. Overall, Splitwise clearly shows how much each person owes and uses consistent colors to indicate balances. However, we also found some usability issues. Supporting screenshots are included in the Appendix~\ref{app:heuristic}.
+
+\begin{enumerate}[label=\arabic*)]
+
+	\item \textbf{Difficulty Understanding Balances (Recognition Rather Than Recall)}
+    
+    Users can see how much they owe for each expense, but the details of how the expenses are split are not directly displayed. They need to go into the editing options to view the split amounts. The Settle Up page shows the total balance between two people, not the individual expenses that make up the balance. Therefore, users may need to review different expenses repeatedly to understand why they owe a certain amount.
+    \item \textbf{Limited Payment Confirmation (Error Prevention)}
+    
+    When recording a payment, users can enter any amount, even if it exceeds the actual amount owed. The app records the payment and updates the balance without requiring confirmation from the recipient. For example, a \$100 payment was recorded even though the actual amount owed was less than \$100. This reversed the balance, making the other person owe money instead, even though no money was actually transferred through the app.
+    \item \textbf{Ability to Delete Other People's Payments (User Control and Freedom / Error Prevention)}
+    
+    Users can delete payment records between other group members, even if they were not involved in the transaction. Although the app displays a confirmation prompt before deletion, it does not require permission from the people involved. The deletion appears in other group members' Activity history, but it can still affect their balances without their approval.
+    \item \textbf{Difficulty Tracking Balance Changes (Visibility of System Status / Recognition Rather Than Recall)}
+    
+    Splitwise keeps a history of expense updates and deleted payments in the Activity section. However, users may not easily understand how these changes affect the current balance. They need to check different expenses and activity records to figure out what has changed. This may be more confusing when multiple group members make changes.
+
+\end{enumerate}
+
+Overall, Splitwise supports balance tracking and expense recording, but clearer breakdowns, more visible changes, and improved payment safeguards may enhance usability.
+
+\subsection{Analysis of Product Reviews} - Zilin(Revised by June)
+
+We reviewed 50 comments: 18 from the App Store, three from Google Play, and 29 from Trustpilot. In 26 reviews (52\%), the main issue was pricing, ads, or expense-entry limits, which We categorized separately from settlement-related issues.
+
+Some reviewers had trouble understanding the amount they owed. Reviews 9, 10, 32, and 40 mentioned unclear spending details or checking the figures with another tool. This suggests that showing a final amount may not be enough for users to check their share.
+
+The comments also showed problems with different parts of settlement. Review 6 described difficulty finding how to record a payment made outside the app. Reviews 48 and 49 discussed delays in receiving or 
+transferring money. Review 29 raised a separate concern about other members changing or deleting shared expenses.
+
+These comments give us reasons to study clearer amounts, payment records, and control over shared expenses. However, they do not tell us whether requiring the recipient to confirm every payment would help. We will explore this question in the survey. The review records and coding are provided in
+Appendix~\ref{app:reviews}.
+
+
+\clearpage
+\appendix
+
+\input{heuristic_appendix}
+\input{review_appendix}
 
 \end{document}
