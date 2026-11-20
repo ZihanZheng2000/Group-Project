@@ -94,7 +94,46 @@ We will look at positive experiences as well as complaints. These reviews are se
 
 \section{Needfinding Results}
 % Add findings after completing the needfinding activities.
-\subsection{Survey}
+\subsection{Survey Results}\label{survey-results}
+
+We used a survey to learn how friends settle several shared expenses after an activity. We asked how they put together the expense list, understand what they owe, pay each other, and decide when they are finished. We planned to collect about 20 eligible responses. By November 14, 2026, we had 21. All 21 answered "Yes" to the screening question and answered Questions 2--13, so we met our target. The two optional written questions each received seven entries. Three answers to Question 14 and two to Question 15 described a specific difficulty. The final report should add the actual recruitment channels, pilot process, and completion time so we can compare what happened with the plan.
+
+The table groups the main findings by part of the settling-up task. Question numbers point to the full survey and response summary in the appendix. Participants could recall one or more qualifying experiences from the past year. Each count means that many people remembered a situation happening at least once.
+
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.17}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.25\linewidth}>{\raggedright\arraybackslash}p{0.39\linewidth}>{\raggedright\arraybackslash}p{0.30\linewidth}@{}}
+\caption{Needfinding Results: Survey}\label{tab:needfinding-survey}\\
+\toprule[0.5pt]
+\textbf{Finding} & \textbf{Survey evidence} & \textbf{What people may need} \\
+\midrule
+\endfirsthead
+\toprule[0.5pt]
+\textbf{Finding} & \textbf{Survey evidence} & \textbf{What people may need} \\
+\midrule
+\endhead
+\endfoot
+\bottomrule
+\endlastfoot
+The expense list may still need work when settlement begins. & Ten people had to gather and add up expenses at settlement because the group had no shared list. Six recalled an omitted expense being added later. Four recalled an expense being added or changed after someone had started paying the earlier balance (Q3). Nine found it effortful or uncertain to make sure every expense was included (Q13). & People need to know which expenses a balance includes, whether the list is still changing, and how a late addition affects payments already underway. \\
+\midrule
+The final amount can be hard to check. & Seven people could not tell which expenses were included or changed. Seven could not check tax, tip, or other adjustments, and five could not see how an expense was split or who was included (Q5). Nine found the final amount or payee effortful or uncertain to understand (Q13). An explanation resolved a question without changing the amount for seven people; a question led to a correction for four (Q7). Written answers also mentioned missing descriptions or breakdowns. & People need a way to trace a combined balance back to its expenses, splits, and available item details. Prototype testing will help us decide how much detail to show at each step. \\
+\midrule
+Expenses change as group members work together. & Six people recalled adding an omitted expense, five recalled changing an expense amount, three recalled changing who shared an expense, and four recalled a change after payment had begun (Q3). & People need to notice changes that affect their balance and have a way to raise and resolve errors. We will test who should handle changes and how the result should appear. \\
+\midrule
+Asking about an unclear amount can feel awkward. & Three people recalled leaving a question unasked because talking about money with friends felt awkward. One write-in described giving up on asking about complex shared charges (Q7). & People may want to check the amount themselves first, then ask about a specific expense if needed. We will separately test how people feel about payment reminders. \\
+\midrule
+Unpaid amounts require follow-up between friends. & Eight people recalled someone reminding or chasing a friend for payment. Six recalled settlement being delayed while waiting for a reply (Q12). & People need to see what is still outstanding and follow up in a way that fits the situation. Prototype testing will focus on when and how to send a reminder. \\
+\midrule
+Payment, the shared record, and final confirmation can get out of step. & Twenty people recalled paying by bank transfer or another payment app (Q8). Fifteen relied on recipient confirmation or on checking their own account as a recipient to decide that a payment was finished (Q10). Three recalled money being sent while the shared record still showed a debt. One recalled the record showing "paid" before the recipient said the money arrived (Q11). & People need to distinguish a payment sent, a shared record updated, and money received. They also need a way to talk through and fix a mismatch. Later testing will explore when an extra confirmation step helps. \\
+\end{longtable}
+}
+
+The survey also includes smooth settlements. Ten people said nothing about the amount was hard to understand (Q5). Fifteen selected the standard "no mismatch noticed" answer (Q11), and six recalled no noticeable extra hassle (Q12). A design should help with exceptions while keeping routine settlement simple. The survey also shifted our attention: we had initially focused more on payment and final confirmation, but preparing the expense list and explaining the amount matter before anyone pays.
+
+These 21 convenience-sample responses help us identify types of problems. Estimating how common they are among all users, comparing payer and recipient roles, or following cause and effect within one settlement would require more detailed participant data.
+
 
 \subsection{Heuristic Evaluation Results}
 
@@ -131,10 +170,30 @@ transferring money. Review 29 raised a separate concern about other members chan
 These comments give us reasons to study clearer amounts, payment records, and control over shared expenses. However, they do not tell us whether requiring the recipient to confirm every payment would help. We will explore this question in the survey. The review records and coding are provided in
 Appendix~\ref{app:reviews}.
 
+\subsection{Insights Across the Three Needfinding Activities}\label{insights-across-the-three-needfinding-activities}
+
+\textbf{First, a combined balance should lead back to the expenses and calculations behind it.} Survey respondents raised questions about which expenses were included, adjustments such as tax, and who shared each cost. Sometimes an explanation resolved the question; sometimes it led to a correction. In our heuristic evaluation, Splitwise showed the total balance between two people on its settlement page, while the split for each expense had to be found elsewhere. Public reviews also described difficulty understanding amounts or using another tool to check them. Together, these findings support a breakdown people can open when they need it. Our prototype will test whether showing expenses and then receipt items helps people check the amount without slowing down an easy settlement.
+
+\textbf{Second, changes made during settlement need a clear person responsible and a clear path to resolution.} Survey respondents recalled omitted expenses, changed amounts, and changed splits, sometimes after payment had started. In the heuristic evaluation, Splitwise\textquotesingle s activity history and current balance appeared in different places. A group member could also delete another person\textquotesingle s payment record, although the app showed a deletion prompt. A public review expressed concern about other members changing shared expenses. These findings point to a need to notice changes, understand their effect on balances, and correct disputed records. We therefore propose that the creator of an expense handle changes requested by other members. Prototype testing will show whether this makes responsibility clearer and how it affects the time needed to settle.
+
+\textbf{Third, payment follow-up and gaps between payment and the shared record involve communication between friends.} Survey respondents recalled reminders, waits for replies, and a few cases where a payment and the shared record did not agree. In Splitwise, recording a payment changed the balance immediately, even when the recorded amount was greater than the debt. The money itself still moved outside the app. A public reviewer also had trouble finding how to record an offline payment. These findings led us to explore a flow with a reminder, a payer\textquotesingle s reply, a recipient\textquotesingle s check, and an updated record. We will test whether it helps people find and resolve differences, along with the work and social pressure it adds.
+
+The three activities showed three linked problems: how to check an amount, how to stay informed when expenses change, and how to move a payment through to completion.
+
+The survey included experiences with expense apps, group chats, and calculations done by friends. Some people could not see how expenses and adjustments made up a balance. Others saw expenses change after payment began or needed to remind a friend to pay. The Splitwise evaluation showed where those problems could appear in an interface: the settlement page showed only the total between two people, the activity history was separate from the current balance, and a manually recorded payment changed the balance even though no money moved through the app. Public reviews added examples of people using Excel to check amounts, worrying about others changing expenses, and struggling to find the offline-payment action. Other reviewers liked the app\textquotesingle s existing expense and debt tracking.
+
+Each activity answers a different kind of question. The survey asked about the path from checking expenses to paying and deciding that the group was settled. It also included people who did not use Splitwise, so it helped us understand the task beyond one app. The interface evaluation showed where people would look for split details and change history, and what happened to the balance after a payment was recorded. That gives us concrete screens and actions to consider in our prototypes. Public reviews showed what Splitwise users chose to bring up on their own, including both problems and features they found useful. Together, the survey widened our view, the evaluation showed possible causes in the interface, and the reviews let us check whether users independently raised similar concerns.
+
+There are still questions to test. Most of the 21 survey respondents came from team members\textquotesingle{} friends and relatives. Their habits may be similar, and they answered from memory. The interface evaluation followed one set of tasks in Splitwise; we still need to see how participants handle these situations themselves. The reviews span app versions, more than half mainly discuss pricing, ads, or entry limits, and people often post when they feel strongly. In the next prototype evaluation, participants will check an amount, request a change, and respond to a reminder in the same settlement scenario. We will look at what helps them and where the new steps cause waits or uncomfortable conversations.
+
+
+
+
 
 \clearpage
+\section{Appendix}\label{appendix}
 \appendix
-
+\input{survey_appendix}
 \input{heuristic_appendix}
 \input{review_appendix}
 
