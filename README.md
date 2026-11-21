@@ -2,6 +2,10 @@
 
 **Main project page** | Georgia Tech CS 6750 HCI
 
+## Interactive prototypes
+
+Download the [prototype ZIP](prototypes/Splitwise_HCI_Prototypes.zip) for the baseline, three standalone HTML prototypes, source code, and instructions. See the [prototype guide](prototypes/README.md) for the four task flows.
+
 ## Project files
 
 | File | Purpose |
