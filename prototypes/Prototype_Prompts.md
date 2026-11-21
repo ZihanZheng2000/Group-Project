@@ -12,7 +12,7 @@
 
 **Goal.** Extend the Baseline to help users verify what they owe before settling up.
 
-**Interaction.** Add View breakdown from the Dashboard and friend page. Show every expense, credit, and payment contributing to the selected balance. Let users expand an expense in place to see the payer, shared receipt items, subtotal, tax, tip, and their share. For expenses without a receipt, show the split and explain that itemization is unavailable. Link to the existing settlement flow with the appropriate person selected. Keep View as in the global top bar and calculate the breakdown from the active role.
+**Interaction.** Add View breakdown from the Dashboard and friend page. Show every expense, credit, and payment contributing to the selected balance. Open the expense from Recent activity to show its summary and a collapsed View breakdown control. Let users expand an expense in place to see the payer, shared receipt items, subtotal, tax, tip, and their share. For expenses without a receipt, show the split and explain that itemization is unavailable. Link to the existing settlement flow with the appropriate person selected. Keep View as in the global top bar and calculate the breakdown from the active role.
 
 **Scenario and acceptance checks.** Show Alex’s $36.00 dinner share, $15.00 parking credit, and $21.00 net amount due to Sam. The seeded $108.00 dinner includes $87.00 in items, $8.70 in tax, and $12.30 in tip; Alex’s share includes $2.90 tax and $4.10 tip. Verify that a $10.00 payment leaves $11.00 on both screens. Include a separate browser storage key, standalone HTML, source, and instructions.
 
