@@ -1,15 +1,44 @@
 \documentclass[letterpaper]{jdf}
 \usepackage{graphicx,booktabs,array,hyperref}
+\usepackage{float}
 
 \author{Human Error}
-\title{Group Project: Splitwise Settling Up --- Check-in 2}
+\title{Group Project: Splitwise Settling Up --- Check-in 2\\Human Error}
+
+\author{
+Jiayi Chen\textsuperscript{1},
+Zilin Xu\textsuperscript{2},
+Zihan Zheng\textsuperscript{3},
+Xing Wu\textsuperscript{4},
+Yue Lu\textsuperscript{5},
+\\
+\small
+\textsuperscript{1}jchen3632@gatech.edu\\
+\textsuperscript{2}zxu722@gatech.edu\\
+\textsuperscript{3}zzheng399@gatech.edu\\
+\textsuperscript{4}xwu600@gatech.edu\\
+\textsuperscript{4}ylu788@gatech.edu
+}
 
 \begin{document}
 \maketitle
+\section{Initial Brainstorming Plan}
+
+All five members will review the findings from our survey, heuristic evaluation, and product review analysis, then revisit our individual ideas and shared Splitwise trial. We will focus on the shared-expense settlement process, from reviewing balances and correcting expenses to following up on payments. Each member willgenerate ideas independently before group discussion.
+
+We will follow four rules:
+(1) \textit{Expressiveness}: welcome unusual or unfinished ideas;
+(2) \textit{Nonevaluation}: avoid criticism during idea generation;
+(3) \textit{Quantity}: generate as many ideas as possible; and
+(4) \textit{Building}: expand on others' suggestions.
+
+Starting independently should reduce early conformity. Taking turns gives everyone space to speak, while postponing criticism helps reduce evaluation apprehension. To address confirmation bias, we will compare ideas against findings from all three methods, including successful settlement experiences. We will also ask whether new controls or confirmation steps add unnecessary work.
+
+After generating ideas, we will evaluate ideas based on user needs, task clarity, user effort, and prototyping feasibility, then select three alternatives for medium-fidelity prototypes. Each prototype will cover the organizer's full workflow, with unchanged steps matching the baseline for later comparison.
 
 \section{Brainstorming Results and Design Alternatives}
 
-During brainstorming, we returned to three moments in the settling-up process. A friend may see a final amount without knowing how it was calculated. Someone may find an error after others have started paying the old amount. A person waiting to be paid may be unsure how to follow up. We discussed five ways to address these situations and chose three for medium-fidelity prototypes.
+During brainstorming, we identified three key challenges in settling up: understanding how balances are calculated, correcting expenses after payments begin, and following up on unpaid balances. We discussed five ways to address these situations and chose three for medium-fidelity prototypes.
 
 \begin{jdftable}
 \small
@@ -20,98 +49,105 @@ During brainstorming, we returned to three moments in the settling-up process. A
 \hline
 \textbf{Idea we discussed} & \textbf{What a person would do} & \textbf{Benefit, drawback, and decision} \\
 \hline
-\textbf{Enter every receipt item by hand} & When adding a dinner expense, the person who paid would type in each item, the tax, the tip, and each person\textquotesingle s share. & This would save detailed information from the start, but entering and checking every item would take time. Our prototypes start with the items already captured by a receipt scan, so we chose to work on how people view that information when settling up. \textbf{Not selected.} \\
+\textbf{Enter every receipt item by hand} & When adding a dinner expense, the person who paid would type in each item, the tax, the tip, and each person\textquotesingle s share. & Preserves details but requires substantial effort. \textbf{Not selected.} \\
 \hline
-\textbf{Open up the amount due} & A person would tap the amount they owe to see the expenses behind it, then open a purchase to see its receipt items, adjustments, and who shares each item. & This addresses the problem of seeing a total without understanding where it came from. It also gives people a way to check the amount themselves. Too many screens or details could slow down a simple settlement. \textbf{Selected for Prototype 1.} \\
+\textbf{Open up the amount due} & Expand a balance to view contributing expenses, receipt items, and individual shares. & Improves transparency but may add complexity.\textbf{Selected for Prototype 1.} \\
 \hline
-\end{tabular}
-\end{jdftable}
-
-\begin{jdftable}
-\small
-\setlength{\tabcolsep}{2.5pt}
-\renewcommand{\arraystretch}{1.16}
-\noindent\textbf{\textit{Table \thetable\ (continued): Brainstorming Results and Design Alternatives}}\par\smallskip
-\begin{tabular}{@{}p{0.20\linewidth}p{0.34\linewidth}p{0.42\linewidth}@{}}
+\textbf{Ask the expense creator to make a change} & Request corrections; the creator reviews their effects on balances and approves or rejects them. & Prevents unexpected changes but may delay settlement. \textbf{Selected for Prototype 2.} \\
 \hline
-\textbf{Idea we discussed} & \textbf{What a person would do} & \textbf{Benefit, drawback, and decision} \\
+\textbf{Send a reminder and allow a reply} & Remind a friend about an unpaid balance and receive a reply about payment status. & Supports follow-up but may create social pressure. \textbf{Selected for Prototype 3.} \\
 \hline
-\textbf{Ask the expense creator to make a change} & If another group member finds a wrong amount or split, they would send a change request on that expense. Its creator would review the old record, the proposed change, and the effect on everyone\textquotesingle s balance. The affected members would see the result. & The person responsible for the expense handles the change, and the group can see why balances changed. Settlement could slow down if that person does not respond soon. \textbf{Selected for Prototype 2.} \\
-\hline
-\textbf{Send a reminder and allow a reply} & A person waiting for money would remind a friend who still appears to owe it. The friend could reply ``I\textquotesingle ll pay later,'' ``I already sent it,'' or ``I have a question about the amount.'' If the friend says they paid, the recipient would check whether the money arrived and update the shared record. & The reminder is used when a payment needs attention. It also gives the group a way to resolve ``I paid, but the record still says I owe.'' The timing and wording of a reminder could make friends uncomfortable. \textbf{Selected for Prototype 3.} \\
-\hline
-\textbf{Require both people to confirm every payment} & After the payer marks a payment as sent, the recipient would have to return to the app and confirm receipt before the record shows it as settled. & This would leave a record of both people\textquotesingle s actions, but it adds a step to every payment. After a bank transfer, both people may feel finished and never return to the app, leaving a payment stuck as ``waiting for confirmation.'' We chose to test reminders and checks when a payment needs attention. \textbf{Not selected.} \\
+\textbf{Require both people to confirm every payment} & The recipient confirms receipt after the payer records a payment. & Improves verification but adds steps and may delay completion. \textbf{Not selected.} \\
 \hline
 \end{tabular}
 \end{jdftable}
 
-\textbf{Prototype 1: A personal settlement breakdown.} A person in the group sees whom they need to pay and how much. If the amount seems higher than expected, they can open it to see which expenses, such as dinner and transportation, make up the total. Opening the dinner expense shows the items imported from its scanned receipt, the tax, and who shares each item. This lets the person check the amount and point to the exact expense or item if something is wrong. We will test whether the breakdown answers people\textquotesingle s questions while still letting those with no questions settle quickly.
+\textbf{Prototype 1: A personal settlement breakdown.} A person in the group sees whom they need to pay and how much. If the amount seems higher than expected, they can open it to see which expenses, such as dinner and transportation, make up the total. Opening the dinner expense shows the items imported from its scanned receipt, the tax, the tip, and who shares each item. This lets the person check the amount and point to the exact expense or item if something is wrong. We will test whether the breakdown answers people\textquotesingle s questions while still letting those with no questions settle quickly.
 
-\textbf{Prototype 2: Change requests handled by the expense creator.} Suppose a dinner expense for a group of four was split four ways, but only three friends attended. A group member can request a change on that expense and explain who should be included. The person who created the expense sees each person\textquotesingle s amount before and after the proposed change, then decides how to handle it. The affected members see the decision and their updated balances, including anyone who already paid the old amount. We will test whether the request and its result are easy to understand, and whether waiting for the creator delays settlement.
+\textbf{Prototype 2: Change requests handled by the expense creator.} Suppose a dinner expense for a group of four was split four ways, but only three friends attended. A group member can request a change on that expense and explain who should be included. The person who created the expense sees each person\textquotesingle s amount before and after the proposed change, then approves or rejects the request.. The affected members see the decision and their updated balances, including anyone who already paid the old amount. We will test whether the request and its result are easy to understand, and whether waiting for the creator delays settlement.
 
 \textbf{Prototype 3: Payment reminders and status updates.} A recipient sees that a friend still has an outstanding payment and sends a reminder that shows the amount and related expenses. The friend can reply that they will pay later or that they have already sent a bank transfer. In the second case, the recipient checks whether the money arrived and updates the shared record. If the money has not arrived or the amount is in question, they can keep working through that payment. We will test whether reminders help people finish settling up and notice differences between payments and records, and whether the reminder feels too pushy.
 
-All three prototypes use the same group of friends and the same recorded expenses. The shopping receipts have already been scanned before the scenario begins, so the prototypes focus on settling up. Each prototype then uses the situation that best tests its idea: checking an amount, correcting a split, or responding to a reminder. This gives participants a concrete task and lets us compare the help each design provides with the extra work it adds.
+All three prototypes use the same group of friends and the same recorded expenses. The receipts have already been scanned before the scenario begins, so the prototypes focus on settling up. Each prototype then uses the situation that best tests its idea: checking an amount, correcting a split, or responding to a reminder. This gives participants a concrete task and lets us compare the help each design provides with the extra work it adds.
 
 
 \section{Initial Prototyping}
 Based on our needfinding results, we proposed three design alternatives to improve the overall user experience of Splitwise when reviewing, settling, and managing shared expenses. Each alternative addresses a different usability issue identified in the research.
 
-\subsection{Prototype 1: Detailed Expense and Balance Breakdown}
+\subsection{Design Alternative 1: Detailed Expense and Balance Breakdown}
 Our needfinding results showed that users had difficulty understanding how their balances were calculated. The first prototype aims to address the problem of insufficient transparency in expense and balance information. On the individual expense page, users can see the total amount, the payer, and the amount each person needs to pay. Users can also expand a section to view more details, such as the subtotal, taxes, tips, and how the total is divided among group members.
 
 If the total balance between two users is made up of multiple expenses, users can click "View Breakdown" on the balance page to view all the expenses that make up the total balance. Each expense can also be expanded to view the details without leaving the current page.
 
 To avoid showing too much information at once, the main page only displays a summary, and detailed information is shown only when users need it. This follows the HCI principles of recognition rather than recall and simplicity. It helps users understand the total balance without requiring them to search through multiple expenses.
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=6cm,keepaspectratio]
+    {Figures/expense_breakdown.png}
+    \caption{Individual Expense Breakdown}
+    \label{fig:expense_breakdown}
+\end{figure}
 
-\subsection{Prototype 2: Controlled Editing and Change Requests}
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=6cm,keepaspectratio]
+    {Figures/balance_breakdown.png}
+    \caption{Balance Breakdown Between Two Users}
+    \label{fig:balance_breakdown}
+\end{figure}
+
+\subsection{Design Alternative 2: Controlled Editing and Change Requests}
 Our heuristic evaluation found that users could modify or delete payment records involving other group members. The second prototype aims to prevent expenses and payment records from being unexpectedly modified. For expenses, only the creator can directly modify them. If other members find any errors, they can click "Request Change" to submit a change request, and the creator can decide whether to approve or reject it.
 
 For payment records, modifications or deletions require confirmation from both the payer and the recipient. Other group members cannot directly modify or delete them, but if any errors are found, they can submit a change request. Once a change is approved, the affected members can see their updated balances.
 
 The prototype shows the process of submitting a request, reviewing the proposed change, and displaying the approval status. This design follows the HCI principles of error prevention and user control and freedom by reducing unexpected changes while still allowing other users to correct mistakes.
 
-\subsection{Prototype 3: Customizable Payment Reminders}
-Our survey results showed that some users had to remind others about unpaid expenses, while others experienced delays waiting for a response. The third prototype focuses on making payment reminders easier to manage. Expense creators can set reminders for unpaid balances, choosing from preset options of 1 day, 3 days, 5 days, or 1 month, or setting a custom interval.
+\begin{figure}[H]
+	\centering
+	\includegraphics[height=6cm]{Figures/change_request_after.png}
+	\caption{Submitted Change Request and Review Status}
+	\label{fig:change_request_after}
+\end{figure}
+\vspace{-0.4cm}
+\begin{figure}[H]
+	\centering
+	\includegraphics[height=6cm]{Figures/change_request_approval.png}
+	\caption{Approved Request}
+	\label{fig:change_request_approval}
+\end{figure}
 
-The interface displays the current reminder settings and allows users to modify or cancel reminders. When a payment is marked as completed, the system automatically stops the reminders.
+\subsection{Design Alternative 3: Customizable Payment Reminders}
+Our survey results showed that some users struggled with reminding others about unpaid expenses and  waiting for a response. The third prototype focuses on reminders settings rather than implementing the full two-way conversation proposed during brainstorming. Expense creators can set reminders for unpaid balances, choosing from preset options of 1 day, 3 days, 5 days, or 30 days, or setting a custom interval.  Users can view, modify, or cancel reminders, which automatically stop when a payment is marked as completed.
+
 
 This design reduces the need for users to manually send reminders and makes it easier for everyone to track unpaid balances. The design supports visibility of system status and user control by making reminder settings and payment status clear.
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[height=6cm]{Figures/payment_reminder_before.png}
+	\caption{Payment Reminder Scheduling}
+	\label{fig:payment_reminder_before.png}
+\end{figure}
+
+
+\clearpage
+\section{Appendix}\label{appendix}
 \appendix
-\section{Prototype Implementation Prompts}
 
-\subsection{Prototype 0: Baseline}
+\section{Additional Prototype Screenshots}
+\begin{figure}[H]
+	\centering
+	\includegraphics[height=9cm]{Figures/change_request_before.png}
+	\caption{Change Request Form}
+	\label{fig:change_request_before.png}
+\end{figure}
 
-\textbf{Goal.} Build Shared Ledger, a high-fidelity, independently styled React, TypeScript, and Tailwind CSS reference prototype for the Georgia Tech CS 6750 HCI team project. Represent the core Splitwise settling-up workflow using fictional people and transactions.
-
-\textbf{Interaction.} Build Dashboard, Groups, Friends, All expenses, Balances, and Payment history views. Let users add an expense, select a payer, split in integer cents, pick a settlement partner, enter an amount, and review and confirm a simulated payment. Update balances and history immediately. Put View as in the top bar so Alex and Sam can switch from any page; show balances and payment directions from the active role. Persist the shared ledger in the browser and include Reset demo.
-
-\textbf{Scenario and acceptance checks.} In Chicago Weekend, Alex owes Sam \$21.00 after a \$15.00 parking credit offsets a \$36.00 dinner share. A \$10.00 simulated payment leaves \$11.00 and creates a payment record. Verify both perspectives, calculation, history, and reset. Deliver standalone HTML, source, and local instructions.
-
-\subsection{Prototype 1: Detailed Expense and Balance Breakdown}
-
-\textbf{Goal.} Extend the Baseline to help users verify what they owe before settling up.
-
-\textbf{Interaction.} Add View breakdown from the Dashboard and friend page. Show every expense, credit, and payment contributing to the selected balance. Let users expand an expense in place to see the payer, shared receipt items, subtotal, tax, tip, and their share. For expenses without a receipt, show the split and explain that itemization is unavailable. Link to the existing settlement flow with the appropriate person selected. Keep View as in the global top bar and calculate the breakdown from the active role.
-
-\textbf{Scenario and acceptance checks.} Show Alex’s \$36.00 dinner share, \$15.00 parking credit, and \$21.00 net amount due to Sam. The seeded \$108.00 dinner includes \$87.00 in items, \$8.70 in tax, and \$12.30 in tip; Alex’s share includes \$2.90 tax and \$4.10 tip. Verify that a \$10.00 payment leaves \$11.00 on both screens. Include a separate browser storage key, standalone HTML, source, and instructions.
-
-\subsection{Prototype 2: Controlled Editing and Change Requests}
-
-\textbf{Goal.} Let group members propose a split correction and let the creator review its financial impact.
-
-\textbf{Interaction.} On Dinner in Chicago, let Alex submit a request with a reason to remove Jordan. Keep balances in effect while it is pending. Use the global View as control to switch to Sam, the creator. Show before-and-after shares, payments already recorded, and remaining dinner amounts. Only Sam can approve or reject. Preserve the previous split and decision in request history and preserve all prior payments.
-
-\textbf{Scenario and acceptance checks.} Sam paid \$108.00, initially split four ways at \$27.00. After approval, the three attendees owe \$36.00 each and Jordan owes \$0.00 for dinner. Maya already paid \$27.00, so she owes \$9.00 more. Alex’s net Chicago Weekend balance with Sam rises from \$12.00 to \$21.00 after the parking credit. Verify pending, approval, rejection, reset, and payment history. Deliver a separate standalone build, source, and instructions.
-
-\subsection{Prototype 3: Payment Reminders and Status Updates}
-
-\textbf{Goal.} Help a recipient reconcile a reported external payment with the shared ledger.
-
-\textbf{Interaction.} As Sam, preview and send a reminder with the amount and related expenses. Use the global View as control to switch to Alex. Offer three replies: I’ll pay later, I already paid, and I have a question about the amount. For a transfer report, prefill editable demo details, show submission confirmation, and provide a direct handoff to Sam. Compare the report with the simulated bank activity. When details differ, explain what differs and allow Alex to correct and resubmit. Only Sam can confirm receipt or say the payment has not arrived. Preserve the conversation and prevent duplicate payment recording.
-
-\textbf{Scenario and acceptance checks.} Alex owes Sam \$21.00 in Chicago Weekend. A fictional bank transfer of \$21.00 dated November 16, 2026 exists outside the ledger. Reminding and reporting leave \$21.00 outstanding. Confirming the matching receipt creates one payment and reduces the balance to \$0.00. Verify all reply branches, mismatch recovery, navigation, and reset. Deliver a separate standalone build, source, and instructions.
-/usr/bin/pdflatex
+\begin{figure}[H]
+	\centering
+	\includegraphics[height=9cm]{Figures/payment_reminder_after.png}
+	\caption{Scheduled Payment Reminder}
+	\label{fig:payment_reminder_after.png}
+\end{figure}
 
 \end{document}

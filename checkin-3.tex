@@ -4,9 +4,146 @@
 \author{Human Error}
 \title{Group Project: Splitwise Settling Up --- Check-in 3}
 
+\author{
+Jiayi Chen\textsuperscript{1},
+Zilin Xu\textsuperscript{2},
+Zihan Zheng\textsuperscript{3},
+Xing Wu\textsuperscript{4},
+Yue Lu\textsuperscript{5},
+\\
+\small
+\textsuperscript{1}jchen3632@gatech.edu\\
+\textsuperscript{2}zxu722@gatech.edu\\
+\textsuperscript{3}zzheng399@gatech.edu\\
+\textsuperscript{4}xwu600@gatech.edu\\
+\textsuperscript{4}ylu788@gatech.edu
+}
+
 \begin{document}
 \maketitle
 
-% Add Check-in 3 content here.
+
+
+
+\section{Evaluation Planning}
+
+We plan to use an online survey to understand how users respond to our three prototypes. Each prototype addresses a different problem in the expense settlement process: having trouble understanding how the total amount owed was calculated, finding an incorrectly assigned expense but not knowing how to request a correction, and still seeing an outstanding balance in the shared ledger after making a bank transfer. We want to find out whether participants think these improvements help solve these problems, whether the steps are easy to understand, and whether the new features make the settlement process more complicated. Their feedback will help us decide which features to keep or improve in our final prototype.
+
+We will recruit people who have experience sharing expenses with others, including classmates, members of other project groups, and personal contacts. Participants will follow the instructions in the online survey to open and try all three prototypes on their own. Each prototype will come with a short scenario explaining the situation and the problem they need to solve. After trying each prototype, participants will answer the related survey questions.
+
+The survey will ask participants to rate each prototype on several aspects, such as how helpful the feature is in the given situation, whether they know what to do next, whether the final amount or payment status is clear, and how much effort it takes to complete the process. In addition to these ratings, we will include open-ended questions asking participants what they found helpful, what confused them, and whether any steps might feel uncomfortable or inconvenient when sharing expenses with friends. This will help us understand not only how participants rate each design, but also why they give those ratings.
+
+After collecting the responses, we will summarize the ratings for each prototype to identify which improvements participants find helpful and which steps require more effort. We will compare the ratings across the three prototypes and, if we find differences, look more closely at which pairs of prototypes differ. We will also group the written responses into common themes, such as unclear explanations of amounts owed, delays in handling correction requests, or payment reminders that might make users feel pressured. By looking at both the ratings and written feedback, we can identify what works well in each design and what needs to change. Since the three prototypes address different parts of the settlement process, we will interpret the results in the context of each scenario rather than using a single overall score to decide which prototype is best. The specific survey questions and scenarios are provided in the following sections.
+
+\section{Evaluation Result}
+\subsection{Participants and Procedure}
+Participants were recruited through convenience sampling, with team members distributing the online survey to friends and classmates. Of the 20 participants, 19 (95\%) had previous expense-sharing experience, including eight who had used Splitwise, four who had used other expense-splitting applications, and seven who had split expenses manually. Fourteen participants (70\%) reported sharing expenses at least once a month.
+Participants reviewed all three alternatives through the scenarios and prototype screenshots provided in the survey. Each alternative was evaluated based on perceived usefulness, ease of understanding, ease of use, and likelihood of use. Participants also answered alternative-specific questions, provided open-ended feedback, and identified the most useful and easiest-to-use alternatives.The evaluation survey and anonymized responses are provided in the Appendix.
+
+
+
+\subsection{Quantitative Results}
+Quantitative analyses were conducted in Python using pandas for data preprocessing and descriptive statistics, SciPy for statistical testing, and statsmodels for p-value adjustment. Responses to the four common evaluation questions were converted to a five-point scale, with higher scores representing more positive evaluations.
+
+\begin{table}[!htbp]
+    \centering
+    \small
+    \setlength{\tabcolsep}{5pt}
+    \caption{Mean Ratings and Standard Deviations}
+    \label{tab:mean_ratings}
+    \begin{tabular}{lccc}
+        \toprule
+        Evaluation Metric & Alternative 1 & Alternative 2 & Alternative 3 \\
+        \midrule
+        Usefulness           & 4.00 (0.86) & 3.25 (1.07) & 3.70 (0.86) \\
+        Ease of Understanding & 4.35 (0.81) & 3.80 (1.32) & 4.30 (0.86) \\
+        Ease of Use          & 4.25 (0.79) & 3.50 (1.19) & 4.50 (0.61) \\
+        Likelihood of Use    & 4.00 (0.79) & 3.05 (1.10) & 3.85 (0.99) \\
+        \bottomrule
+    \end{tabular}
+
+    \vspace{2pt}
+    {\footnotesize \textit{Note: Values represent mean (standard deviation), $N=20$.}}
+\end{table}
+
+As shown in Table 1, Alternative 1 received the highest mean ratings for usefulness, ease of understanding, and likelihood of use, suggesting that participants valued understanding how their outstanding balances were calculated. Alternative 3 received the highest ease-of-use rating (M = 4.50, SD = 0.61), indicating that its reminder settings were perceived as straightforward. Alternative 2 scored lowest across all four measures, suggesting that the change request process may introduce additional interaction effort.
+Regarding overall preferences, 70\% selected Alternative 1 as the most useful, followed by Alternative 3 (25\%) and Alternative 2 (5\%). Alternative 3 was considered the easiest to use by 50\% of participants, followed by Alternative 1 (35\%) and Alternative 2 (15\%). These results suggest that perceived usefulness and ease of use do not necessarily lead to the same preference.
+The alternative-specific questions also received positive responses. For Alternative 1, 80\% found it easy to identify where the total balance came from. For Alternative 2, 80\% considered the change request process clear. For Alternative 3, 80\% felt comfortable using reminders to follow up with a friend.
+
+\subsection{Statistical Analysis}
+Since the same participants evaluated all three alternatives using ordinal rating scales, Friedman tests were conducted to examine differences across the alternatives. Holm correction was applied across the four evaluation measures to account for multiple testing, with a significance level of 0.05.
+
+\begin{table}[!htbp]
+    \centering
+    \small
+    \setlength{\tabcolsep}{6pt}
+    \caption{Friedman Test Results}
+    \label{tab:friedman}
+    \begin{tabular}{lcccc}
+        \toprule
+        Evaluation Metric & $\chi^2$ & df & $p$-value & Adjusted $p$ \\
+        \midrule
+        Usefulness            & 8.780  & 2 & 0.0124 & \textbf{0.0248} \\
+        Ease of Understanding & 3.500  & 2 & 0.1738 & 0.1738 \\
+        Ease of Use           & 12.689 & 2 & 0.0018 & \textbf{0.0070} \\
+        Likelihood of Use     & 11.839 & 2 & 0.0027 & \textbf{0.0081} \\
+        \bottomrule
+    \end{tabular}
+
+    \vspace{2pt}
+    {\footnotesize \textit{Note: Bold values indicate significance after Holm correction ($\alpha=0.05$).}}
+\end{table}
+
+As shown in Table 2, statistically significant differences were found in usefulness, ease of use, and likelihood of use, but not in ease of understanding.
+For the three significant measures, post-hoc Wilcoxon signed-rank tests were conducted to identify which pairs of alternatives differed. Holm correction was applied to the three pairwise comparisons within each measure.
+
+
+\begin{table}[!htbp]
+    \centering
+    \small
+    \setlength{\tabcolsep}{6pt}
+    \caption{Pairwise Wilcoxon Signed-Rank Test Results}
+    \label{tab:wilcoxon}
+    \begin{tabular}{lccc}
+        \toprule
+        Evaluation Metric & A1 vs. A2 & A1 vs. A3 & A2 vs. A3 \\
+        \midrule
+        Usefulness        & 0.0513 & 0.2096 & 0.2059 \\
+        Ease of Use       & \textbf{0.0365} & 0.1317 & \textbf{0.0047} \\
+        Likelihood of Use & \textbf{0.0054} & 0.4669 & \textbf{0.0209} \\
+        \bottomrule
+    \end{tabular}
+
+    \vspace{2pt}
+    {\footnotesize \textit{Note: All $p$-values are Holm-adjusted. Bold values indicate significance ($\alpha=0.05$).}}
+\end{table}
+
+The pairwise comparisons indicated that Alternatives 1 and 3 received significantly higher ratings than Alternative 2 for ease of use and likelihood of use. No significant differences were found between Alternatives 1 and 3. Although the overall Friedman test for usefulness was significant, none of its pairwise comparisons remained significant after correction.
+The findings should be interpreted cautiously because the small sample size, convenience sampling, and different evaluation scenarios may limit generalizability and comparability. Additionally, the ratings reflect perceived usability rather than observed task performance. The analysis code and detailed statistical results are provided in the Appendix.
+
+
+\subsection{Qualitative Results}
+Open-ended responses were grouped into common themes to identify the strengths, limitations, and potential improvements of each alternative.
+\begin{enumerate}[label=\arabic*)]
+\item \textbf{Alternative 1: Expense Transparency and Clarity.}
+ Participants valued understanding total balances without checking individual expenses. Suggested improvements included clearer positive and negative balance indicators, unequal expense allocations, and more prominent total bill amounts.
+\item \textbf{Alternative 2: Editing Control and Interaction Effort.}
+Participants appreciated correcting expenses and preventing unauthorized changes but questioned the additional approval steps and frequency of use. Clearer comparisons between original and proposed amounts were requested, highlighting a trade-off between editing control and efficiency.
+\item \textbf{Alternative 3: Reminder Convenience and Social Comfort.}
+Participants valued scheduled reminders for reducing memory burden and social discomfort. Suggestions included default reminders, flexible scheduling, and clearer identification of recipients
+\end{enumerate}
+\subsection{Design Implications}
+The alternatives offer complementary benefits. Alternative 1 should remain a core feature with clearer balance indicators. Alternative 2 requires a simplified approval process, while Alternative 3 could incorporate default reminders and flexible scheduling.
+One participant also suggested combining all three alternatives. Rather than selecting a single preferred alternative, the findings will guide feature integration and refinement.
+
+
+\clearpage
+\section{Appendix}\label{appendix}
+\appendix
+
+\section{Raw Survey And Responses}
+\href{https://github.com/ZihanZheng2000/Group-Project/blob/main/Shared%20Expense%20App%20Design%20Evaluation%20Survey.xlsx}{Shared Expense App Design Evaluation Survey}
+
 
 \end{document}
+
