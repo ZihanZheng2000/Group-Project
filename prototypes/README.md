@@ -1,5 +1,11 @@
 # Shared Ledger — CS 6750 HCI Prototypes
 
+## Final mobile prototype
+
+[Download the standalone HTML](final-mobile/Shared_Ledger_Mobile_Prototype.html) and open it in a browser. See the [quick test guide](final-mobile/README.md#try-the-integrated-flow) for balance breakdown, split correction, and payment follow-up.
+
+## Earlier evaluation prototypes
+
 Download the current HTML files from the table below and open them in a desktop browser. The [earlier source bundle](Splitwise_HCI_Prototypes.zip) contains local build instructions. Each version stores its own test data in the browser. Use **Reset demo** between participants. **View as** is always available in the top bar and switches the dashboard, activity, and ledger controls between Alex and Sam. Both roles share the same ledger within a version.
 
 | File | What to test |
