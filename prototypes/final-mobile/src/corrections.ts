@@ -1,34 +1,42 @@
-import { dinnerId, groups, split, type Entry, type Expense, type Person } from './ledger'
+import { groups, type Expense, type Person } from './ledger'
 
 export type Correction = {
   before: Expense['shares']
   proposed: Expense['shares']
+  requester: Person
   note: string
-  status: 'pending' | 'approved' | 'declined'
+  status: 'pending' | 'approved' | 'declined' | 'superseded'
 }
 
-export function isDinner(entry: Entry): entry is Expense {
-  return entry.kind === 'expense' && entry.id === dinnerId
+export function splitParticipants(expense: Expense) {
+  const existing = expense.shares.map(share => share.person)
+  const members = expense.group === 'personal' ? existing : groups[expense.group].members
+  return [...new Set([...existing, expense.payer, ...members])]
 }
 
-export function createCorrection(dinner: Expense, members: Person[], note: string): Correction | undefined {
-  if (!isDinner(dinner) || !members.includes(dinner.payer)) return
-  const selected = groups.trip.members.filter(person => members.includes(person))
-  const proposed = split(dinner.amount, selected)
-  const unchanged = proposed.length === dinner.shares.length &&
-    proposed.every(share => dinner.shares.some(current => current.person === share.person && current.cents === share.cents))
-  if (unchanged) return
-  return { before: dinner.shares, proposed, note: note.trim().slice(0, 300), status: 'pending' }
+export function canEditSplit(expense: Expense, actor: Person) {
+  return splitParticipants(expense).includes(actor)
 }
 
-export function applyCorrection(dinner: Expense, correction: Correction): Expense {
-  const members = correction.proposed.map(share => share.person)
+export function validateSplit(expense: Expense, shares: Expense['shares']) {
+  const participants = splitParticipants(expense)
+  if (new Set(shares.map(share => share.person)).size !== shares.length ||
+    shares.some(({ person, cents }) => !participants.includes(person) || !Number.isSafeInteger(cents) || cents < 0) ||
+    shares.reduce((sum, share) => sum + share.cents, 0) !== expense.amount) return
+  const proposed = shares.filter(share => share.cents > 0 || share.person === expense.payer || expense.group === 'personal')
+  const centsFor = (list: Expense['shares'], person: Person) => list.find(share => share.person === person)?.cents ?? 0
+  if (participants.every(person => centsFor(proposed, person) === centsFor(expense.shares, person))) return
+  return proposed
+}
+
+export function applySplit(expense: Expense, shares: Expense['shares']): Expense {
+  const members = shares.filter(share => share.cents > 0).map(share => share.person)
   return {
-    ...dinner,
-    shares: correction.proposed,
-    receipt: dinner.receipt && {
-      ...dinner.receipt,
-      items: dinner.receipt.items.map(item => ({ ...item, members })),
+    ...expense,
+    shares,
+    receipt: expense.receipt && {
+      ...expense.receipt,
+      items: expense.receipt.items.map(item => ({ ...item, members })),
     },
   }
 }

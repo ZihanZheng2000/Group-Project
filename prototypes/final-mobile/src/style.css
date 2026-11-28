@@ -294,3 +294,6 @@ dialog .expense-breakdown { @apply m-0; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+.correction-form label.amount-split-row { display: grid; grid-template-columns: minmax(0, 1fr) 110px; align-items: center; gap: 8px; }
+.amount-split-row input { text-align: right; font-variant-numeric: tabular-nums; }

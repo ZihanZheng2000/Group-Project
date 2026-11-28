@@ -34,6 +34,27 @@ export function split(amount: number, members: Person[]) {
   return members.map((person, index) => ({ person, cents: share + Number(index < remainder) }))
 }
 
+export function rescaleSplit(amount: number, expense: Expense) {
+  const included = expense.shares.filter(share => share.cents > 0)
+  const equalMembers = [expense.shares, included].find(list => {
+    const equal = split(expense.amount, list.map(share => share.person))
+    return list.every((share, index) => share.cents === equal[index].cents)
+  })
+  if (equalMembers) {
+    const revised = split(amount, equalMembers.map(share => share.person))
+    return expense.shares.map(share => revised.find(item => item.person === share.person) ?? share)
+  }
+  // Keep the original proportions and allocate the last cents by fractional remainder.
+  const originalAmount = BigInt(expense.amount)
+  const shares = expense.shares.map(({ person, cents }) => {
+    const scaled = BigInt(cents) * BigInt(amount)
+    return { person, cents: Number(scaled / originalAmount), remainder: Number(scaled % originalAmount) }
+  })
+  const extra = amount - shares.reduce((total, share) => total + share.cents, 0)
+  const roundUp = new Set([...shares].sort((a, b) => b.remainder - a.remainder).slice(0, extra).map(share => share.person))
+  return shares.map(({ person, cents }) => ({ person, cents: cents + Number(roundUp.has(person)) }))
+}
+
 function seed(id: string, date: string, group: Group, title: string, payer: Person, amount: number, members: Person[]): Expense {
   return { id, kind: 'expense', date, group, title, payer, amount, shares: split(amount, members) }
 }

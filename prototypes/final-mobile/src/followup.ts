@@ -9,7 +9,7 @@ export type Event =
   | { kind: 'reported'; amount: number; date: string; note: string }
   | { kind: 'missing' | 'confirmed' }
 
-export type Demo = { entries: Entry[]; thread: Event[]; reminderAt?: number; correction?: Correction; correctionHistory?: Correction[] }
+export type Demo = { entries: Entry[]; thread: Event[]; reminderAt?: number; splitRequests?: Record<string, Correction[]> }
 export const seedDemo: Demo = { entries: initialEntries, thread: [] }
 export const bankTransfer = { amount: 2100, date: '2026-11-16', id: 'bank-chicago-transfer' }
 export const outstanding = (entries: Entry[]) => Math.max(0, -balance(entries.filter(entry => entry.group === 'trip'), 'me', 'sam'))

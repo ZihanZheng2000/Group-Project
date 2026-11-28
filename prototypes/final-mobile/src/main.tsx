@@ -7,7 +7,7 @@ import { addEvent, deliverReminder, outstanding, seedDemo, setReminder, type Dem
 import { Conversation } from './conversation'
 import { balanceLabel, Breakdown, ExpenseBreakdown } from './breakdown'
 import { CorrectionPanel } from './correction-panel'
-import { applyCorrection, createCorrection, isDinner } from './corrections'
+import { applySplit, canEditSplit, validateSplit, type Correction } from './corrections'
 import './style.css'
 
 const storageKey = 'cs6750-shared-ledger-final-v1'
@@ -26,7 +26,13 @@ type Overlay = 'expense' | 'payment' | 'reset' | null
 function loadDemo(): Demo {
   try {
     const stored = localStorage.getItem(storageKey)
-    if (stored) return JSON.parse(stored)
+    if (stored) {
+      const saved: Demo & { correction?: Omit<Correction, 'requester'>; correctionHistory?: Omit<Correction, 'requester'>[] } = JSON.parse(stored)
+      const { correction, correctionHistory, ...demo } = saved
+      if (!correction && !correctionHistory?.length) return demo
+      const legacy = [...(correctionHistory ?? []), ...(correction ? [correction] : [])]
+      return { ...demo, splitRequests: { ...demo.splitRequests, [dinnerId]: legacy.map(item => ({ ...item, requester: 'me' })) } }
+    }
   } catch { /* Allow the demo to run without browser storage. */ }
   return seedDemo
 }
@@ -53,7 +59,7 @@ function Activity({ actor, entries, onSelect }: { actor: Person; entries: Entry[
 function App() {
   const [demo, setDemo] = useState(loadDemo)
   const { entries } = demo
-  const [role, setRole] = useState<'me' | 'sam'>('me')
+  const [role, setRole] = useState<Person>('me')
   const [followOpen, setFollowOpen] = useState<{ action?: 'remind' } | null>(null)
   const [breakdown, setBreakdown] = useState<Person | null>(null)
   const [route, setRoute] = useState<Route>({ page: 'group', id: 'trip' })
@@ -108,7 +114,7 @@ function App() {
     const involvesRole = entry.kind === 'payment'
       ? entry.from === role || entry.to === role
       : entry.payer === role || entry.shares.some(share => share.person === role)
-    if (role === 'sam' && !involvesRole && !(entry.group !== 'personal' && groups[entry.group].members.includes(role))) return false
+    if (!involvesRole && !(entry.group !== 'personal' && groups[entry.group].members.includes(role))) return false
     if (route.page === 'expenses') return entry.kind === 'expense'
     if (route.page === 'payments') return entry.kind === 'payment'
     if (!friend) return true
@@ -118,6 +124,7 @@ function App() {
         (entry.payer === friend && entry.shares.some(share => share.person === role))
   }).sort((a, b) => b.date.localeCompare(a.date))
   const chicago = entries.filter(entry => entry.group === 'trip')
+  const followRole = role === 'me' || role === 'sam' ? role : undefined
   const counterparty = role === 'me' ? 'sam' : 'me'
   const chicagoBalance = balance(chicago, role, counterparty)
   const due = outstanding(entries)
@@ -136,7 +143,7 @@ function App() {
     setOverlay('payment')
   }
   const mayEditExpense = (expense: Expense, state: Demo) =>
-    expense.payer === role && (!isDinner(expense) || state.correction?.status !== 'pending')
+    expense.payer === role && state.splitRequests?.[expense.id]?.at(-1)?.status !== 'pending'
 
   function closeDetail() {
     setEditingExpense(false)
@@ -153,26 +160,41 @@ function App() {
     setNotice('Expense updated.')
   }
 
-  function submitCorrection(members: Person[], note: string) {
+  function submitSplit(expenseId: string, shares: Expense['shares'], note: string) {
     setDemo(current => {
-      const dinner = current.entries.find(isDinner)
-      if (role !== 'me' || !dinner || current.correction?.status === 'pending') return current
-      const correction = createCorrection(dinner, members, note)
-      if (!correction) return current
-      const correctionHistory = current.correction
-        ? [...(current.correctionHistory ?? []), current.correction] : current.correctionHistory
-      return { ...current, correction, correctionHistory }
+      const expense = current.entries.find(entry => entry.id === expenseId)
+      if (expense?.kind !== 'expense' || !canEditSplit(expense, role)) return current
+      const proposed = validateSplit(expense, shares)
+      if (!proposed) return current
+      const requests = current.splitRequests?.[expenseId] ?? []
+      const pending = requests.at(-1)?.status === 'pending'
+      if (role === expense.payer) {
+        return {
+          ...current,
+          entries: current.entries.map(entry => entry.id === expenseId ? applySplit(expense, proposed) : entry),
+          splitRequests: pending ? { ...current.splitRequests, [expenseId]: requests.map(request =>
+            request.status === 'pending' ? { ...request, status: 'superseded' } : request) } : current.splitRequests,
+        }
+      }
+      if (pending) return current
+      const correction: Correction = { before: expense.shares, proposed, requester: role, note: note.trim().slice(0, 300), status: 'pending' }
+      return { ...current, splitRequests: { ...current.splitRequests, [expenseId]: [...requests, correction] } }
     })
   }
 
-  function decideCorrection(status: 'approved' | 'declined') {
+  function decideCorrection(expenseId: string, status: 'approved' | 'declined') {
     setDemo(current => {
-      if (role !== 'sam' || current.correction?.status !== 'pending') return current
-      const correction = { ...current.correction, status }
-      const updated = status === 'approved'
-        ? current.entries.map(entry => isDinner(entry) ? applyCorrection(entry, correction) : entry)
+      const expense = current.entries.find(entry => entry.id === expenseId)
+      const history = current.splitRequests?.[expenseId] ?? []
+      const pending = history.at(-1)
+      if (expense?.kind !== 'expense' || expense.payer !== role || pending?.status !== 'pending') return current
+      const proposed = status === 'approved' ? validateSplit(expense, pending.proposed) : undefined
+      if (status === 'approved' && !proposed) return current
+      const updated = proposed
+        ? current.entries.map(entry => entry.id === expenseId ? applySplit(expense, proposed) : entry)
         : current.entries
-      return { ...current, entries: updated, correction }
+      return { ...current, entries: updated,
+        splitRequests: { ...current.splitRequests, [expenseId]: [...history.slice(0, -1), { ...pending, status }] } }
     })
   }
   function save(newEntries: Entry[], message: string) {
@@ -188,10 +210,10 @@ function App() {
     setNotice('')
   }
 
-  function switchRole(next: 'me' | 'sam') {
+  function switchRole(next: Person) {
     if (next === role) return
     setRole(next)
-    setFollowOpen(current => current ? {} : null)
+    setFollowOpen(current => current && (next === 'me' || next === 'sam') ? {} : null)
     setNotice('')
     closeDetail()
     setBreakdown(null)
@@ -203,18 +225,25 @@ function App() {
 
   const onActivity = route.page === 'activity' || route.page === 'expenses' || route.page === 'payments'
   const onGroups = route.page === 'group' || route.page === 'groups'
-  const busy = group === 'trip' && demo.correction?.status === 'pending'
+  const pendingSplits = visible.flatMap(entry => {
+    if (entry.kind !== 'expense') return []
+    const request = demo.splitRequests?.[entry.id]?.at(-1)
+    return request?.status === 'pending' && (entry.payer === role || request.requester === role)
+      ? [{ expense: entry, request }] : []
+  })
+  const hasPendingReview = entries.some(entry => entry.kind === 'expense' && entry.payer === role &&
+    demo.splitRequests?.[entry.id]?.at(-1)?.status === 'pending')
   const groupList = groupIds.filter(id => groups[id].members.includes(role))
   return <div className="phone">
     <header className="topbar"><div className="top-inner">
       <button className="brand" onClick={() => navigate({ page: 'groups' })}><span className="brand-icon"><Icon name="logo" size={19}/></span> Shared Ledger</button>
-      <label className="role-picker"><Avatar person={role}/><span>View as</span><select value={role} onChange={event => switchRole(event.target.value as 'me' | 'sam')}><option value="me">Alex Kim</option><option value="sam">Sam Patel</option></select></label>
+      <label className="role-picker"><Avatar person={role}/><span>View as</span><select value={role} onChange={event => switchRole(event.target.value as Person)}>{(['me', 'sam', 'maya', 'jordan'] as const).map(id => <option key={id} value={id}>{people[id].name}</option>)}</select></label>
     </div></header>
     <main ref={scroller} className="scroll-area">
       <div key={screen} className="screen">
-        {followOpen ? <Conversation key={role} demo={demo} role={role} switchRole={switchRole} initialAction={followOpen.action}
-          schedule={at => setDemo(current => setReminder(current, role, at))}
-          send={event => setDemo(current => addEvent(current, role, event))}
+        {followOpen && followRole ? <Conversation key={role} demo={demo} role={followRole} switchRole={switchRole} initialAction={followOpen.action}
+          schedule={at => setDemo(current => setReminder(current, followRole, at))}
+          send={event => setDemo(current => addEvent(current, followRole, event))}
           back={() => navigate({ page: 'group', id: 'trip' })}
           history={() => navigate({ page: 'payments' })}
         /> : breakdown ? <Breakdown actor={role} friend={breakdown} entries={scoped} origin={title}
@@ -248,7 +277,7 @@ function App() {
             <button key={filter.page} aria-current={route.page === filter.page ? 'page' : undefined} onClick={() => navigate({ page: filter.page })}>{filter.label}</button>
           )}
         </nav>}
-        {group === 'trip' && <section className="settlement-card" aria-label="Balance with Alex or Sam">
+        {group === 'trip' && followRole && <section className="settlement-card" aria-label="Balance with Alex or Sam">
           <div className="balance-focus">
             <h2>{balanceLabel(counterparty, chicagoBalance)} <span key={chicagoBalance} className="balance-amount">{money(Math.abs(chicagoBalance))}</span></h2>
             {paymentStatus && <p className="status-label"><Icon name={due === 0 ? 'check' : 'clock'} size={15}/>{paymentStatus}</p>}
@@ -262,20 +291,20 @@ function App() {
             <button className="text-action" onClick={() => setFollowOpen({})}><Icon name="clock" size={16}/>Payment follow-up</button>
           </div>
         </section>}
-        {!onActivity && group !== 'trip' && <div className="summary-grid">
+        {!onActivity && (group !== 'trip' || !followRole) && <div className="summary-grid">
           <div className="summary"><span>Total balance</span><strong className={owed >= owe ? 'positive' : 'negative'}>{money(owed - owe)}</strong></div>
           <div className="summary"><span>You owe</span><strong className="negative">{money(owe)}</strong></div>
           <div className="summary"><span>You are owed</span><strong className="positive">{money(owed)}</strong></div>
         </div>}
-        {!onActivity && group !== 'trip' && <button className="button secondary section-action" onClick={() => openPayment(friend)}><Icon name="exchange"/>Settle up</button>}
+        {!onActivity && (group !== 'trip' || !followRole) && <button className="button secondary section-action" onClick={() => openPayment(friend)}><Icon name="exchange"/>Settle up</button>}
         {route.page !== 'balances' && <section className="panel activity-panel">
           <header className="panel-heading"><h2>{route.page === 'payments' ? 'Recorded payments' : route.page === 'expenses' ? 'Expense list' : 'Recent activity'}</h2></header>
-          {(busy || (route.page === 'activity' && demo.correction?.status === 'pending')) && <div className="pending-correction">
+          {pendingSplits.map(({ expense, request }) => <div key={expense.id} className="pending-correction">
             <span className="entry-icon"><Icon name="edit"/></span>
-            <div className="pending-text"><strong>{role === 'sam' ? 'Alex edited the dinner split' : 'Dinner split awaiting approval'}</strong>
-              <p className="small muted">Dinner in Chicago</p></div>
-            <button className="button secondary" onClick={() => setDetailId(dinnerId)}>{role === 'sam' ? 'Review split' : 'View submitted edit'}</button>
-          </div>}
+            <div className="pending-text"><strong>{expense.payer === role ? `${people[request.requester].name} proposed a split` : 'Split awaiting approval'}</strong>
+              <p className="small muted">{expense.title}</p></div>
+            <button className="button secondary" onClick={() => setDetailId(expense.id)}>{expense.payer === role ? 'Review split' : 'View submitted edit'}</button>
+          </div>)}
           <Activity actor={role} entries={visible} onSelect={entry => setDetailId(entry.id)}/>
         </section>}
         {(!onActivity) && <section className="panel">
@@ -286,7 +315,7 @@ function App() {
               {rows.filter(row => Math.sign(row.cents) === direction).length === 0 && <p className="muted small">All settled on this side.</p>}
               {rows.filter(row => Math.sign(row.cents) === direction).map(({ id, cents }) => <div key={id} className="balance-actions">
                 <button className="balance-row" onClick={() => navigate({ page: 'friend', id })}><Avatar person={id}/><span>{people[id].name}</span><strong className={direction < 0 ? 'negative' : 'positive'}>{money(Math.abs(cents))}</strong><Icon name="chevron" size={14}/></button>
-                {(group !== 'trip' || id !== counterparty) && <button className="text-action balance-breakdown-link" onClick={() => setBreakdown(id)} aria-label={`View breakdown with ${people[id].name}`}>View breakdown</button>}
+                {(group !== 'trip' || !followRole || id !== counterparty) && <button className="text-action balance-breakdown-link" onClick={() => setBreakdown(id)} aria-label={`View breakdown with ${people[id].name}`}>View breakdown</button>}
               </div>)}
             </div>)}
           </div>
@@ -298,7 +327,7 @@ function App() {
       <button aria-current={onGroups ? 'page' : undefined} onClick={() => navigate({ page: 'groups' })}><Icon name="case" size={22}/>Groups</button>
       <button aria-current={route.page === 'balances' || route.page === 'friend' ? 'page' : undefined} onClick={() => navigate({ page: 'balances' })}><Icon name="people" size={22}/>Balances</button>
       <button className="add-tab" onClick={() => setOverlay('expense')}><span><Icon name="plus" size={23}/></span>Add expense</button>
-      <button aria-current={onActivity ? 'page' : undefined} onClick={() => navigate({ page: 'activity' })}><span className="tab-icon"><Icon name="clock" size={22}/>{role === 'sam' && demo.correction?.status === 'pending' && <i aria-label="Pending split edit"/>}</span>Activity</button>
+      <button aria-current={onActivity ? 'page' : undefined} onClick={() => navigate({ page: 'activity' })}><span className="tab-icon"><Icon name="clock" size={22}/>{hasPendingReview && <i aria-label="Pending split edit"/>}</span>Activity</button>
       <button aria-current={route.page === 'account' ? 'page' : undefined} onClick={() => navigate({ page: 'account' })}><Icon name="user" size={22}/>Account</button>
     </nav>
     <div className="toast-host" role="status">{notice && <div className="toast"><Icon name="check"/>{notice}</div>}</div>
@@ -312,8 +341,10 @@ function App() {
         <p className="muted">{groupName(detail.group)} · {detail.date}</p>
         <ExpenseBreakdown actor={role} expense={detail} collapsible/>
         {mayEditExpense(detail, demo) && <button className="button secondary self-start" onClick={() => setEditingExpense(true)}><Icon name="edit"/>Edit expense</button>}
-        {isDinner(detail) && <CorrectionPanel key={detail.id + role} dinner={detail} entries={entries}
-          role={role} correction={demo.correction} history={demo.correctionHistory} submit={submitCorrection} decide={decideCorrection}/>}
+        {canEditSplit(detail, role) && <CorrectionPanel key={detail.id + role} expense={detail} entries={entries}
+          role={role} requests={demo.splitRequests?.[detail.id] ?? []}
+          submit={(shares, note) => submitSplit(detail.id, shares, note)}
+          decide={status => decideCorrection(detail.id, status)}/>}
       </> : <>
         <div className="detail-total">{money(detail.amount)}</div><p className="muted">{groupName(detail.group)} · {detail.date}</p>
         <p>{people[detail.from].name} paid {people[detail.to].name}. Simulated payment.</p>

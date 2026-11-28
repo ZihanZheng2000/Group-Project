@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
-import { allocatePayment, balance, contacts, groupIds, groupName, groups, money, parseMoney, people, settlementScopes, split, today, type Entry, type Expense, type Group, type Person } from './ledger'
+import { allocatePayment, balance, contacts, groupIds, groupName, groups, money, parseMoney, people, rescaleSplit, settlementScopes, split, today, type Entry, type Expense, type Group, type Person } from './ledger'
 import { Icon } from './ui'
 
 export function Modal({ title, close, children }: { title: string; close: () => void; children: ReactNode }) {
@@ -109,7 +109,7 @@ export function EditExpenseForm({ expense, save, close }: {
       return
     }
     save({ ...expense, title, date, amount, receipt: revised,
-      shares: split(amount, expense.shares.map(share => share.person)) })
+      shares: rescaleSplit(amount, expense) })
   }
   return <form className="form" onSubmit={submit}>
     <label>Description<input name="description" defaultValue={expense.title} required maxLength={100}/></label>

@@ -18,24 +18,27 @@ export function ExpenseBreakdown({ actor, expense, effect, collapsible = false }
 }) {
   const { receipt, payer, amount, shares } = expense
   const names = (members: Person[]) => members.map(person => person === actor ? 'You' : people[person].name).join(', ')
-  const members = shares.map(share => share.person)
+  const included = shares.filter(share => share.cents > 0)
+  const members = included.map(share => share.person)
+  const equal = split(amount, members)
+  const itemizedShares = included.every((share, index) => equal[index].cents === share.cents)
   const subtotal = receipt?.items.reduce((total, item) => total + item.amount, 0) ?? 0
   const lineShare = (end: number, start: number) => shareOf(end, members, actor) - shareOf(start, members, actor)
   const personalShare = shares.find(share => share.person === actor)?.cents ?? 0
   const breakdown = receipt ? <>
       <h3>Itemized receipt</h3>
       <table className="receipt-table">
-        <thead><tr><th scope="col">Item</th><th scope="col">Bill total</th><th scope="col">Your share</th></tr></thead>
+        <thead><tr><th scope="col">Item</th><th scope="col">Bill total</th>{itemizedShares && <th scope="col">Your share</th>}</tr></thead>
         <tbody>
           {receipt.items.map((item, index) => {
             const start = receipt.items.slice(0, index).reduce((total, previous) => total + previous.amount, 0)
-            return <tr key={item.label}><th scope="row">{item.label}<small>Shared by {names(item.members)}</small></th><td>{money(item.amount)}</td><td>{money(lineShare(start + item.amount, start))}</td></tr>
+            return <tr key={item.label}><th scope="row">{item.label}<small>Shared by {names(item.members)}</small></th><td>{money(item.amount)}</td>{itemizedShares && <td>{money(lineShare(start + item.amount, start))}</td>}</tr>
           })}
-          <tr><th scope="row">Subtotal</th><td>{money(subtotal)}</td><td>{money(shareOf(subtotal, members, actor))}</td></tr>
-          <tr><th scope="row">Tax</th><td>{money(receipt.tax)}</td><td>{money(lineShare(subtotal + receipt.tax, subtotal))}</td></tr>
-          <tr><th scope="row">Tip</th><td>{money(receipt.tip)}</td><td>{money(lineShare(amount, subtotal + receipt.tax))}</td></tr>
+          <tr><th scope="row">Subtotal</th><td>{money(subtotal)}</td>{itemizedShares && <td>{money(shareOf(subtotal, members, actor))}</td>}</tr>
+          <tr><th scope="row">Tax</th><td>{money(receipt.tax)}</td>{itemizedShares && <td>{money(lineShare(subtotal + receipt.tax, subtotal))}</td>}</tr>
+          <tr><th scope="row">Tip</th><td>{money(receipt.tip)}</td>{itemizedShares && <td>{money(lineShare(amount, subtotal + receipt.tax))}</td>}</tr>
         </tbody>
-        <tfoot><tr><th scope="row">Total</th><td>{money(amount)}</td><td>{money(personalShare)}</td></tr></tfoot>
+        <tfoot><tr><th scope="row">Total</th><td>{money(amount)}</td>{itemizedShares && <td>{money(personalShare)}</td>}</tr></tfoot>
       </table>
       <h3 className="mt-3">Expense split</h3>
       <dl className="detail-shares">{shares.map(share => <div key={share.person} className="flex justify-between border-t border-gray-200 py-2"><dt>{names([share.person])}</dt><dd>{money(share.cents)}</dd></div>)}</dl>
