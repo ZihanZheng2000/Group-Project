@@ -9,7 +9,7 @@ export type Event =
   | { kind: 'reported'; amount: number; date: string; note: string }
   | { kind: 'missing' | 'confirmed' }
 
-export type Demo = { entries: Entry[]; thread: Event[]; reminderAt?: number; correction?: Correction }
+export type Demo = { entries: Entry[]; thread: Event[]; reminderAt?: number; correction?: Correction; correctionHistory?: Correction[] }
 export const seedDemo: Demo = { entries: initialEntries, thread: [] }
 export const bankTransfer = { amount: 2100, date: '2026-11-16', id: 'bank-chicago-transfer' }
 export const outstanding = (entries: Entry[]) => Math.max(0, -balance(entries.filter(entry => entry.group === 'trip'), 'me', 'sam'))
@@ -41,7 +41,10 @@ export function addEvent(demo: Demo, role: Role, event: Event): Demo {
     case 'reported':
       if (role !== 'me' || amountDue <= 0) return demo
       if (event.kind !== 'reported' && last?.kind !== 'reminder') return demo
-      if (event.kind === 'reported' && (!Number.isSafeInteger(event.amount) || event.amount <= 0 || !event.date)) return demo
+      if (event.kind === 'reported') {
+        const canReport = last?.kind === 'reminder' || last?.kind === 'reported' || last?.kind === 'missing'
+        if (!canReport || !Number.isSafeInteger(event.amount) || event.amount <= 0 || !event.date) return demo
+      }
       break
     case 'missing':
       if (role !== 'sam' || last?.kind !== 'reported') return demo

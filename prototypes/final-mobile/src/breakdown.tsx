@@ -37,6 +37,8 @@ export function ExpenseBreakdown({ actor, expense, effect, collapsible = false }
         </tbody>
         <tfoot><tr><th scope="row">Total</th><td>{money(amount)}</td><td>{money(personalShare)}</td></tr></tfoot>
       </table>
+      <h3 className="mt-3">Expense split</h3>
+      <dl className="detail-shares">{shares.map(share => <div key={share.person} className="flex justify-between border-t border-gray-200 py-2"><dt>{names([share.person])}</dt><dd>{money(share.cents)}</dd></div>)}</dl>
     </> : <>
       <p className="muted">No itemized receipt available.</p>
       <h3>Expense split</h3>

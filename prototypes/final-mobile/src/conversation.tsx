@@ -4,7 +4,7 @@ import { bankTransfer, eventLabel, outstanding, type Demo, type Event, type Repl
 import { Avatar, Icon } from './ui'
 
 export function Conversation({ demo, role, switchRole, send, schedule, back, history, initialAction }: {
-  demo: Demo; role: Role; switchRole: (role: Role) => void; send: (event: Event) => void; schedule: (at?: number) => void; back: () => void; history: () => void; initialAction?: 'report' | 'remind'
+  demo: Demo; role: Role; switchRole: (role: Role) => void; send: (event: Event) => void; schedule: (at?: number) => void; back: () => void; history: () => void; initialAction?: 'remind'
 }) {
   const [preview, setPreview] = useState(initialAction === 'remind' && demo.reminderAt === undefined)
   const [timing, setTiming] = useState('24')
@@ -29,7 +29,7 @@ export function Conversation({ demo, role, switchRole, send, schedule, back, his
     }
     setPreview(false)
   }
-  const [reply, setReply] = useState<Reply>(initialAction === 'report' ? 'reported' : 'later')
+  const [reply, setReply] = useState<Reply>('later')
   const [note, setNote] = useState('')
   const [amount, setAmount] = useState((bankTransfer.amount / 100).toFixed(2))
   const [date, setDate] = useState(bankTransfer.date)
@@ -37,8 +37,7 @@ export function Conversation({ demo, role, switchRole, send, schedule, back, his
   const [error, setError] = useState('')
   const due = outstanding(demo.entries)
   const last = demo.thread.at(-1)
-  const [startReport, setStartReport] = useState(initialAction === 'report')
-  const reporting = editing || startReport || reply === 'reported'
+  const reporting = editing || reply === 'reported'
   const awaitingReply = due > 0 && last?.kind === 'reminder'
   const canCorrect = due > 0 && (last?.kind === 'reported' || last?.kind === 'missing')
   const reportedTransfer = [...demo.thread].reverse().find(event => event.kind === 'reported')
@@ -68,7 +67,6 @@ export function Conversation({ demo, role, switchRole, send, schedule, back, his
     setNote('')
     setError('')
     setEditing(false)
-    setStartReport(false)
   }
 
   return <>
@@ -100,7 +98,7 @@ export function Conversation({ demo, role, switchRole, send, schedule, back, his
       <div><h2>Waiting for Alex’s reply</h2><p className="small muted">Switch to Alex to respond to the reminder.</p></div>
       <button className="button secondary" onClick={() => switchRole('me')}>Switch to Alex</button>
     </section>}
-    {role === 'me' && canCorrect && !editing && !startReport && <section className="panel follow-entry">
+    {role === 'me' && canCorrect && !editing && <section className="panel follow-entry">
       <div><h2>{last?.kind === 'reported' ? 'Transfer report sent to Sam' : 'Sam could not confirm receipt'}</h2>
         <p className="small muted">{reportedTransfer && `${money(reportedTransfer.amount)} · ${reportedTransfer.date} · `}The balance is still {money(due)}.</p></div>
       <div className="flex flex-wrap gap-2">
@@ -115,14 +113,10 @@ export function Conversation({ demo, role, switchRole, send, schedule, back, his
         {last?.kind === 'reported' && <button className="button primary" onClick={() => switchRole('sam')}>Switch to Sam to check receipt</button>}
       </div>
     </section>}
-    {role === 'me' && due > 0 && !awaitingReply && !canCorrect && !startReport && <section className="panel follow-entry">
-      <h2>Paid outside Shared Ledger?</h2>
-      <button className="button primary" onClick={() => setStartReport(true)}>I already paid</button>
-    </section>}
-    {role === 'me' && due > 0 && (startReport || awaitingReply || (canCorrect && editing)) && <section className="panel">
-      <header className="panel-heading"><h2>{editing ? 'Correct transfer details' : startReport ? 'Report a payment' : 'Reply to Sam'}</h2></header>
+    {role === 'me' && due > 0 && (awaitingReply || (canCorrect && editing)) && <section className="panel">
+      <header className="panel-heading"><h2>{editing ? 'Correct transfer details' : 'Reply to Sam'}</h2></header>
       <form className="form" onSubmit={submit}>
-        {!editing && !startReport && <label>Your reply<select value={reply} onChange={event => { setReply(event.target.value as Reply); setError('') }}>
+        {!editing && <label>Your reply<select value={reply} onChange={event => { setReply(event.target.value as Reply); setError('') }}>
           <option value="later">{eventLabel.later}</option><option value="reported">{eventLabel.reported}</option><option value="question">{eventLabel.question}</option>
         </select></label>}
         {reporting && <><p className="form-note">Your simulated transfer to Sam was {money(bankTransfer.amount)} on {bankTransfer.date}.</p><div className="form-grid"><label>Amount sent (USD)<input inputMode="decimal" required placeholder="0.00" value={amount} onChange={event => setAmount(event.target.value)}/></label>
@@ -130,7 +124,7 @@ export function Conversation({ demo, role, switchRole, send, schedule, back, his
         <label>Message (optional)<textarea rows={2} maxLength={300} value={note} onChange={event => setNote(event.target.value)}/></label>
         {error && <p role="alert" className="negative">{error}</p>}
         <footer className="modal-actions">
-          {(editing || startReport) && <button type="button" className="button secondary" onClick={() => { setEditing(false); setStartReport(false); setReply('later'); setError('') }}>Cancel</button>}
+          {editing && <button type="button" className="button secondary" onClick={() => { setEditing(false); setReply('later'); setError('') }}>Cancel</button>}
           <button className="button primary">{reporting ? 'Send transfer report' : 'Send reply'}</button>
         </footer>
       </form>

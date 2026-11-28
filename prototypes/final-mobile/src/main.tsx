@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { balance, contacts, dinnerId, groupIds, groupName, groups, money, people, type Entry, type Person } from './ledger'
+import { balance, contacts, dinnerId, groupIds, groupName, groups, money, people, type Entry, type Expense, type Person } from './ledger'
 import { Avatar, Icon } from './ui'
-import { ExpenseForm, Modal, PaymentForm } from './forms'
+import { EditExpenseForm, ExpenseForm, Modal, PaymentForm } from './forms'
 import { addEvent, deliverReminder, outstanding, seedDemo, setReminder, type Demo } from './followup'
 import { Conversation } from './conversation'
 import { balanceLabel, Breakdown, ExpenseBreakdown } from './breakdown'
@@ -54,11 +54,13 @@ function App() {
   const [demo, setDemo] = useState(loadDemo)
   const { entries } = demo
   const [role, setRole] = useState<'me' | 'sam'>('me')
-  const [followOpen, setFollowOpen] = useState<{ action?: 'report' | 'remind' } | null>(null)
+  const [followOpen, setFollowOpen] = useState<{ action?: 'remind' } | null>(null)
   const [breakdown, setBreakdown] = useState<Person | null>(null)
   const [route, setRoute] = useState<Route>({ page: 'group', id: 'trip' })
   const [overlay, setOverlay] = useState<Overlay>(null)
+  const [paymentPartner, setPaymentPartner] = useState<Person>()
   const [detailId, setDetailId] = useState<string | null>(null)
+  const [editingExpense, setEditingExpense] = useState(false)
   const detail = entries.find(entry => entry.id === detailId)
   const lastEvent = demo.thread.at(-1)
   const [notice, setNotice] = useState('')
@@ -125,14 +127,41 @@ function App() {
     : lastEvent?.kind === 'reminder' ? 'Reminder sent'
     : demo.reminderAt !== undefined && role === 'sam' ? 'Reminder scheduled'
     : lastEvent?.kind === 'confirmed' ? 'Payment recorded' : ''
-  const close = () => setOverlay(null)
+  function close() {
+    setOverlay(null)
+    setPaymentPartner(undefined)
+  }
+  function openPayment(partner?: Person) {
+    setPaymentPartner(partner)
+    setOverlay('payment')
+  }
+  const mayEditExpense = (expense: Expense, state: Demo) =>
+    expense.payer === role && (!isDinner(expense) || state.correction?.status !== 'pending')
+
+  function closeDetail() {
+    setEditingExpense(false)
+    setDetailId(null)
+  }
+
+  function saveExpenseEdit(revised: Expense) {
+    setDemo(current => ({
+      ...current,
+      entries: current.entries.map(entry => entry.kind === 'expense' && entry.id === revised.id &&
+        mayEditExpense(entry, current) ? revised : entry),
+    }))
+    setEditingExpense(false)
+    setNotice('Expense updated.')
+  }
 
   function submitCorrection(members: Person[], note: string) {
     setDemo(current => {
       const dinner = current.entries.find(isDinner)
       if (role !== 'me' || !dinner || current.correction?.status === 'pending') return current
       const correction = createCorrection(dinner, members, note)
-      return correction ? { ...current, correction } : current
+      if (!correction) return current
+      const correctionHistory = current.correction
+        ? [...(current.correctionHistory ?? []), current.correction] : current.correctionHistory
+      return { ...current, correction, correctionHistory }
     })
   }
 
@@ -154,7 +183,7 @@ function App() {
   function navigate(next: Route) {
     setFollowOpen(null)
     setBreakdown(null)
-    setDetailId(null)
+    closeDetail()
     setRoute(next)
     setNotice('')
   }
@@ -164,7 +193,7 @@ function App() {
     setRole(next)
     setFollowOpen(current => current ? {} : null)
     setNotice('')
-    setDetailId(null)
+    closeDetail()
     setBreakdown(null)
     scroller.current?.scrollTo(0, 0)
     if (friend === next || (group && !groups[group].members.includes(next))) {
@@ -189,7 +218,7 @@ function App() {
           back={() => navigate({ page: 'group', id: 'trip' })}
           history={() => navigate({ page: 'payments' })}
         /> : breakdown ? <Breakdown actor={role} friend={breakdown} entries={scoped} origin={title}
-          back={() => setBreakdown(null)} settle={() => setOverlay('payment')} openExpense={setDetailId}
+          back={() => setBreakdown(null)} settle={() => openPayment(breakdown)} openExpense={setDetailId}
         /> : route.page === 'groups' ? <>
           <div className="page-heading"><h1>Groups</h1></div>
           <ul className="activity panel">{groupList.map(id => <li key={id}><button className="activity-row" onClick={() => navigate({ page: 'group', id })}>
@@ -226,13 +255,10 @@ function App() {
           </div>
           <div className="settlement-actions">
             <button className="button secondary" onClick={() => setBreakdown(counterparty)}><Icon name="receipt"/>View breakdown</button>
-            {due > 0 && !paymentInProgress && (role === 'me'
-              ? <button className="button primary" onClick={() => setFollowOpen({ action: 'report' })}><Icon name="check"/>I already paid</button>
-              : <button className="button primary" onClick={() => setFollowOpen({ action: 'remind' })}><Icon name="bell"/>{demo.reminderAt === undefined ? 'Remind Alex' : 'Manage reminder'}</button>
-            )}
+            {role === 'sam' && due > 0 && !paymentInProgress && <button className="button primary" onClick={() => setFollowOpen({ action: 'remind' })}><Icon name="bell"/>{demo.reminderAt === undefined ? 'Remind Alex' : 'Manage reminder'}</button>}
           </div>
           <div className="settlement-links">
-            {due > 0 && <button className="text-action" onClick={() => setOverlay('payment')}><Icon name="exchange" size={16}/>Settle up</button>}
+            {due > 0 && <button className="text-action" onClick={() => openPayment(counterparty)}><Icon name="exchange" size={16}/>Settle up</button>}
             <button className="text-action" onClick={() => setFollowOpen({})}><Icon name="clock" size={16}/>Payment follow-up</button>
           </div>
         </section>}
@@ -241,7 +267,7 @@ function App() {
           <div className="summary"><span>You owe</span><strong className="negative">{money(owe)}</strong></div>
           <div className="summary"><span>You are owed</span><strong className="positive">{money(owed)}</strong></div>
         </div>}
-        {!onActivity && group !== 'trip' && <button className="button secondary section-action" onClick={() => setOverlay('payment')}><Icon name="exchange"/>Settle up</button>}
+        {!onActivity && group !== 'trip' && <button className="button secondary section-action" onClick={() => openPayment(friend)}><Icon name="exchange"/>Settle up</button>}
         {route.page !== 'balances' && <section className="panel activity-panel">
           <header className="panel-heading"><h2>{route.page === 'payments' ? 'Recorded payments' : route.page === 'expenses' ? 'Expense list' : 'Recent activity'}</h2></header>
           {(busy || (route.page === 'activity' && demo.correction?.status === 'pending')) && <div className="pending-correction">
@@ -277,19 +303,22 @@ function App() {
     </nav>
     <div className="toast-host" role="status">{notice && <div className="toast"><Icon name="check"/>{notice}</div>}</div>
     {overlay === 'expense' && <Modal title="Add an expense" close={close}><ExpenseForm actor={role} group={group} friend={friend} save={save} close={close}/></Modal>}
-    {overlay === 'payment' && <Modal title="Settle up" close={close}><PaymentForm actor={role} entries={entries} group={group} friend={friend} save={save} close={close}/></Modal>}
+    {overlay === 'payment' && <Modal title="Settle up" close={close}><PaymentForm actor={role} entries={entries} group={group} friend={paymentPartner ?? friend} save={save} close={close}/></Modal>}
     {overlay === 'reset' && <Modal title="Reset demo?" close={close}><div className="form"><p>This restores the starting balances and removes split edits, the conversation, and any expenses and payments added during this session.</p><footer className="modal-actions"><button className="button secondary" onClick={close}>Cancel</button><button className="button primary" onClick={() => { setDemo(seedDemo); setRole('me'); navigate({ page: 'group', id: 'trip' }); close(); setNotice('Demo reset.') }}>Reset demo</button></footer></div></Modal>}
-    {detail && <Modal title={detail.kind === 'expense' ? detail.title : 'Payment details'} close={() => setDetailId(null)}><div className="form">
-      {detail.kind === 'expense' ? <>
+    {detail && <Modal title={editingExpense ? 'Edit expense' : detail.kind === 'expense' ? detail.title : 'Payment details'} close={closeDetail}>
+      {editingExpense && detail.kind === 'expense'
+        ? <EditExpenseForm expense={detail} save={saveExpenseEdit} close={() => setEditingExpense(false)}/>
+        : <div className="form">{detail.kind === 'expense' ? <>
         <p className="muted">{groupName(detail.group)} · {detail.date}</p>
         <ExpenseBreakdown actor={role} expense={detail} collapsible/>
+        {mayEditExpense(detail, demo) && <button className="button secondary self-start" onClick={() => setEditingExpense(true)}><Icon name="edit"/>Edit expense</button>}
         {isDinner(detail) && <CorrectionPanel key={detail.id + role} dinner={detail} entries={entries}
-          role={role} correction={demo.correction} submit={submitCorrection} decide={decideCorrection}/>}
+          role={role} correction={demo.correction} history={demo.correctionHistory} submit={submitCorrection} decide={decideCorrection}/>}
       </> : <>
         <div className="detail-total">{money(detail.amount)}</div><p className="muted">{groupName(detail.group)} · {detail.date}</p>
         <p>{people[detail.from].name} paid {people[detail.to].name}. Simulated payment.</p>
       </>}
-    </div></Modal>}
+    </div>}</Modal>}
   </div>
 }
 createRoot(document.getElementById('root')!).render(<App/>)

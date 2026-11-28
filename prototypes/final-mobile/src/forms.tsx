@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
-import { allocatePayment, balance, contacts, groupIds, groupName, groups, money, parseMoney, people, settlementScopes, split, today, type Entry, type Group, type Person } from './ledger'
+import { allocatePayment, balance, contacts, groupIds, groupName, groups, money, parseMoney, people, settlementScopes, split, today, type Entry, type Expense, type Group, type Person } from './ledger'
 import { Icon } from './ui'
 
 export function Modal({ title, close, children }: { title: string; close: () => void; children: ReactNode }) {
@@ -75,6 +75,58 @@ export function ExpenseForm({ actor, group, friend, save, close }: {
     <div className="form-note"><strong>Split equally</strong><div>{split(amount, members).map(({ person, cents }) => `${person === actor ? 'You' : people[person].name} ${money(cents)}`).join(' · ')}</div></div>
     {error && <p role="alert" className="negative">{error}</p>}
     <footer className="modal-actions"><button type="button" className="button secondary" onClick={close}>Cancel</button><button className="button primary">Save expense</button></footer>
+  </form>
+}
+
+export function EditExpenseForm({ expense, save, close }: {
+  expense: Expense; save: (expense: Expense) => void; close: () => void
+}) {
+  const decimal = (cents: number) => (cents / 100).toFixed(2)
+  const [error, setError] = useState('')
+  const receipt = expense.receipt
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const fields = new FormData(event.currentTarget)
+    const title = String(fields.get('description')).trim()
+    const date = String(fields.get('date'))
+    const rawAmount = (name: string) => String(fields.get(name) ?? '').trim()
+    const validAmount = (name: string) => parseMoney(rawAmount(name)) > 0 || /^0+(?:\.0{1,2})?$/.test(rawAmount(name))
+    const receiptFields = receipt ? [...receipt.items.map((_, index) => `item-${index}`), 'tax', 'tip'] : ['amount']
+    if (!title || !date || !receiptFields.every(validAmount)) {
+      setError('Enter a description, date, and valid amounts in dollars and cents.')
+      return
+    }
+    const revised = receipt && {
+      items: receipt.items.map((item, index) => ({ ...item, amount: parseMoney(rawAmount(`item-${index}`)) })),
+      tax: parseMoney(rawAmount('tax')),
+      tip: parseMoney(rawAmount('tip')),
+    }
+    const amount = revised
+      ? revised.items.reduce((total, item) => total + item.amount, revised.tax + revised.tip)
+      : parseMoney(rawAmount('amount'))
+    if (amount <= 0 || amount > 99999999) {
+      setError('The total must be between $0.01 and $999,999.99.')
+      return
+    }
+    save({ ...expense, title, date, amount, receipt: revised,
+      shares: split(amount, expense.shares.map(share => share.person)) })
+  }
+  return <form className="form" onSubmit={submit}>
+    <label>Description<input name="description" defaultValue={expense.title} required maxLength={100}/></label>
+    <label>Date<input name="date" type="date" defaultValue={expense.date} required/></label>
+    {receipt ? <>
+      {receipt.items.map((item, index) => <label key={item.label}>{item.label} (USD)
+        <input name={`item-${index}`} defaultValue={decimal(item.amount)} inputMode="decimal" required/>
+      </label>)}
+      <div className="form-grid">
+        <label>Tax (USD)<input name="tax" inputMode="decimal" defaultValue={decimal(receipt.tax)} required/></label>
+        <label>Tip (USD)<input name="tip" inputMode="decimal" defaultValue={decimal(receipt.tip)} required/></label>
+      </div>
+      <p className="small muted">The total and each person’s share update when you save.</p>
+    </> : <label>Amount (USD)<input name="amount" defaultValue={decimal(expense.amount)} inputMode="decimal" required/></label>}
+    {error && <p className="negative" role="alert">{error}</p>}
+    <footer className="modal-actions"><button type="button" className="button secondary" onClick={close}>Cancel</button>
+      <button className="button primary">Save changes</button></footer>
   </form>
 }
 

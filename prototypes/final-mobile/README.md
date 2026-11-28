@@ -1,17 +1,15 @@
 # Shared Ledger Mobile Prototype
 
-Open `Shared_Ledger_Mobile_Prototype.html` in a browser. On phones it fills the viewport. On desktop it opens in a centered phone frame. The demo starts as Alex Kim in Chicago Weekend. It stores the shared ledger locally in the browser. Use **Account → Reset demo** to start over. Scroll the screen vertically, use the bottom tabs to switch views, and swipe the handle of a detail sheet down to close it.
+On GitHub, open [the standalone HTML](Shared_Ledger_Mobile_Prototype.html), choose **Download raw file**, and open the downloaded file in a browser. The mobile edition combines the three original interactions in Chicago Weekend. Switch between Alex and Sam using **View as**. Use **Account → Reset demo** for a fresh run.
 
 ## Try the integrated flow
 
-1. As Alex, open **View breakdown**. The $27 dinner share and $15 parking credit leave $12 owed to Sam. Expand **Dinner in Chicago** to inspect the itemized receipt.
-2. Open the dinner expense details and select **Edit split**. Use **View breakdown** in the details sheet if you want to expand the receipt. Uncheck Jordan Lee, check the updated amounts, and select **Submit to Sam**.
-3. Switch **View as** to Sam. Open **Review split** under Recent activity. **Approve** updates the balance to $21 and retains Maya’s prior payment. **Decline** keeps the $12 balance and lets Alex edit again.
-4. After approval, switch to Alex and select **I already paid**. Submit the prefilled $21 simulated transfer. Switch to Sam and select **Confirm receipt**. The balance between Alex and Sam falls to $0 and Payment history shows one new payment.
-5. To try reminders, use **Remind Alex** as Sam before settlement. The demo supports immediate, preset, and custom times. A scheduled reminder is delivered while the demo is open or when it next opens after the scheduled time.
+1. **Detailed expense and balance breakdown.** As Alex, open **View breakdown** on the Chicago Weekend balance. The $27 dinner share and $15 parking credit leave $12 owed to Sam. Expand **Dinner in Chicago** to inspect the items, taxes, tip, and split. If you open the expense from Recent activity, use **View breakdown** in the expense details to show the receipt.
+2. **Controlled editing and split approval.** As Alex, open **Dinner in Chicago → Edit split**, uncheck Jordan Lee, and select **Submit to Sam**. Switch to Sam and select **Review split** under Recent activity. Compare the original and proposed amounts, including Maya’s existing $27 payment. **Approve** changes Alex’s net balance to $21 and leaves Maya $9 to pay for dinner. **Decline** keeps the original $12 balance. Sam can use **Edit expense** on the dinner after resolving the request. Alex can use it on an expense Alex paid, such as Parking garage.
+3. **Customizable payment reminders and replies.** After approving the split, stay as Sam and open **Remind Alex**. Pick **Immediately**, a preset delay, or a custom date and time. For the full reply flow, send immediately, switch to Alex, and choose **Your reply**. Try **I’ll pay later**, **I have a question about the amount**, or **I already paid**. With the last option, submit the prefilled $21 transfer. Switch to Sam to compare it with simulated bank activity and confirm receipt. The balance reaches $0 and Payment history shows one new payment. To test scheduling, choose a delay or custom time and use **Edit reminder**, **Cancel reminder**, or **Send now**.
 
-Split editing is demonstrated on the Chicago dinner. Bank activity and notifications are simulated locally.
+The original standalone prototypes are in the [prototype directory](../README.md). The integrated scenario starts from the four-way dinner split from Prototype 2. The simulated external transfer uses the $21 amount from Prototype 3 after approval.
 
 ## Source
 
-Use Node.js 22.12+ or 24. Run `npm ci` and `npm run dev` in the extracted folder. Run `npm run build` to generate the standalone file at `dist/index.html`.
+Use Node.js 22.12+ or 24. Run `npm ci` and `npm run dev` in this folder. Run `npm run build` to generate the standalone file at `dist/index.html`.

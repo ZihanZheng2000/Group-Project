@@ -24,7 +24,7 @@ export type Expense = {
 }
 export type Payment = {
   id: string; kind: 'payment'; date: string; group: Group
-  from: Person; to: Person; amount: number
+  from: Person; to: Person; amount: number; expenseId?: string
 }
 export type Entry = Expense | Payment
 
@@ -41,7 +41,7 @@ function seed(id: string, date: string, group: Group, title: string, payer: Pers
 export const dinnerId = '3'
 
 export const initialEntries: Entry[] = [
-  { id: '6', kind: 'payment', date: '2026-11-14', group: 'trip', from: 'maya', to: 'sam', amount: 2700 },
+  { id: '6', kind: 'payment', date: '2026-11-14', group: 'trip', from: 'maya', to: 'sam', amount: 2700, expenseId: dinnerId },
   seed('5', '2026-11-16', 'apartment', 'November utilities', 'maya', 12900, groups.apartment.members),
   seed('4', '2026-11-15', 'apartment', 'Apartment groceries', 'me', 7500, groups.apartment.members),
   {
